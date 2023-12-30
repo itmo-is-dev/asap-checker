@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <PackageReference Include="Itmo.Dev.Platform.Events"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Itmo.Dev.Asap.Checker.Application.Models\Itmo.Dev.Asap.Checker.Application.Models.csproj"/>
+    </ItemGroup>
+
+</Project>

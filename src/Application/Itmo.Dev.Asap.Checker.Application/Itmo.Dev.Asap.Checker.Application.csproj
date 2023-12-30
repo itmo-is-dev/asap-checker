@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <PackageReference Include="Itmo.Dev.Platform.BackgroundTasks"/>
+        <PackageReference Include="Itmo.Dev.Platform.Locking" />
+        <PackageReference Include="ronimizy.FluentSerialization.Extensions.NewtonsoftJson" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Itmo.Dev.Asap.Checker.Application.Abstractions\Itmo.Dev.Asap.Checker.Application.Abstractions.csproj" />
+        <ProjectReference Include="..\Itmo.Dev.Asap.Checker.Application.Contracts\Itmo.Dev.Asap.Checker.Application.Contracts.csproj"/>
+    </ItemGroup>
+</Project>

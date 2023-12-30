@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Application\Itmo.Dev.Asap.Checker.Application.Abstractions\Itmo.Dev.Asap.Checker.Application.Abstractions.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf ProtoRoot="protos" Include="protos\**\*.proto" GrpcServices="Client"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Grpc.AspNetCore" />
+      <PackageReference Include="Grpc.Net.Client" />
+    </ItemGroup>
+
+</Project>
