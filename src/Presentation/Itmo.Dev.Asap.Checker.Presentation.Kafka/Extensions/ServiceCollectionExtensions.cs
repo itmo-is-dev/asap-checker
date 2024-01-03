@@ -15,26 +15,26 @@ public static class ServiceCollectionExtensions
     {
         const string consumerKey = "Presentation:Kafka:Consumers";
 
-        string host = configuration.GetSection("Presentation:Kafka:Host").Get<string>() ?? string.Empty;
         string group = Assembly.GetExecutingAssembly().GetName().Name ?? string.Empty;
 
-        collection.AddKafkaConsumer<SubmissionDataKey, SubmissionDataValue>(selector => selector
-            .HandleWith<SubmissionDataHandler>()
-            .DeserializeKeyWithProto()
-            .DeserializeValueWithProto()
-            .UseNamedOptionsConfiguration(
-                "SubmissionData",
-                configuration.GetSection($"{consumerKey}:SubmissionData"),
-                c => c.WithHost(host).WithGroup(group)));
-
-        collection.AddKafkaConsumer<BanMachineAnalysisKey, BanMachineAnalysisValue>(selector => selector
-            .HandleWith<BanMachineAnalysisHandler>()
-            .DeserializeKeyWithProto()
-            .DeserializeValueWithProto()
-            .UseNamedOptionsConfiguration(
-                "BanMachineAnalysis",
-                configuration.GetSection($"{consumerKey}:BanMachineAnalysis"),
-                c => c.WithHost(host).WithGroup(group)));
+        collection.AddKafka(builder => builder
+            .ConfigureOptions(b => b.BindConfiguration("Presentation:Kafka"))
+            .AddConsumer<SubmissionDataKey, SubmissionDataValue>(selector => selector
+                .HandleWith<SubmissionDataHandler>()
+                .DeserializeKeyWithProto()
+                .DeserializeValueWithProto()
+                .UseNamedOptionsConfiguration(
+                    "SubmissionData",
+                    configuration.GetSection($"{consumerKey}:SubmissionData"),
+                    c => c.WithGroup(group)))
+            .AddConsumer<BanMachineAnalysisKey, BanMachineAnalysisValue>(selector => selector
+                .HandleWith<BanMachineAnalysisHandler>()
+                .DeserializeKeyWithProto()
+                .DeserializeValueWithProto()
+                .UseNamedOptionsConfiguration(
+                    "BanMachineAnalysis",
+                    configuration.GetSection($"{consumerKey}:BanMachineAnalysis"),
+                    c => c.WithGroup(group))));
 
         return collection;
     }
