@@ -11,7 +11,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.StateHandlers;
 
-public class DumpingContentStateHandler : ICheckingTaskStateHandler
+internal class DumpingContentStateHandler : ICheckingTaskStateHandler
 {
     private readonly DumpingContentState _state;
     private readonly IGithubSubjectCourseService _githubSubjectCourseService;

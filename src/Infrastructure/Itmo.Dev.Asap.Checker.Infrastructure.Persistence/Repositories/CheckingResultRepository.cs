@@ -22,12 +22,17 @@ public class CheckingResultRepository : ICheckingResultRepository
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         const string sql = """
-        select checking_result_first_submission_id,
+        select checking_result_assignment_id,
+               checking_result_first_submission_id,
+               checking_result_first_group_id,
                checking_result_second_submission_id, 
+               checking_result_second_group_id, 
                checking_result_similarity_score
         from checking_results
         where 
             task_id = :task_id 
+            and (cardinality(:assignment_ids) = 0 or checking_result_assignment_id = any (:assignment_ids))
+            and (cardinality(:group_ids) = 0 or checking_result_first_group_id = any (:group_ids) or checking_result_second_group_id = any (:group_ids))
             and (:should_ignore_first_filter or checking_result_first_submission_id >= :first_submission_id)
             and (:should_ignore_first_filter 
                  or :should_ignore_second_filter 
@@ -49,12 +54,22 @@ public class CheckingResultRepository : ICheckingResultRepository
 
         await using NpgsqlDataReader reader = await command.ExecuteReaderAsync(cancellationToken);
 
+        int assignmentId = reader.GetOrdinal("checking_result_assignment_id");
+        int firstSubmissionId = reader.GetOrdinal("checking_result_first_submission_id");
+        int firstGroupId = reader.GetOrdinal("checking_result_first_group_id");
+        int secondSubmissionId = reader.GetOrdinal("checking_result_second_submission_id");
+        int secondGroupId = reader.GetOrdinal("checking_result_second_group_id");
+        int similarityScore = reader.GetOrdinal("checking_result_similarity_score");
+
         while (await reader.ReadAsync(cancellationToken))
         {
             yield return new SubmissionPairCheckingResult(
-                FirstSubmissionId: reader.GetGuid(0),
-                SecondSubmissionId: reader.GetGuid(1),
-                SimilarityScore: reader.GetDouble(2));
+                AssignmentId: reader.GetGuid(assignmentId),
+                FirstSubmissionId: reader.GetGuid(firstSubmissionId),
+                FirstSubmissionGroupId: reader.GetGuid(firstGroupId),
+                SecondSubmissionId: reader.GetGuid(secondSubmissionId),
+                SecondSubmissionGroupId: reader.GetGuid(secondGroupId),
+                SimilarityScore: reader.GetDouble(similarityScore));
         }
     }
 

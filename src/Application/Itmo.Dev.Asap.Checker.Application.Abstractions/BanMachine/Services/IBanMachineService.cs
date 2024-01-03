@@ -13,11 +13,11 @@ public interface IBanMachineService
         IReadOnlyCollection<SubmissionData> data,
         CancellationToken cancellationToken);
 
-    IAsyncEnumerable<SubmissionPairCheckingResult> GetCheckingResultDataAsync(
+    IAsyncEnumerable<BanMachinePairCheckingResult> GetCheckingResultDataAsync(
         CheckingId checkingId,
         CancellationToken cancellationToken);
 
     IAsyncEnumerable<SimilarCodeBlocks> GetCheckingResultCodeBlocksAsync(
-        CheckingResultCodeBlocksQuery query,
+        CheckingResultCodeBlocksRequest query,
         CancellationToken cancellationToken);
 }

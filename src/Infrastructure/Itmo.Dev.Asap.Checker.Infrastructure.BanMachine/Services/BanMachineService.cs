@@ -2,7 +2,6 @@ using Itmo.Dev.Asap.BanMachine;
 using Itmo.Dev.Asap.BanMachine.Models;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.BanMachine.Models;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.BanMachine.Services;
-using Itmo.Dev.Asap.Checker.Application.Models.CheckingResults;
 using Itmo.Dev.Asap.Checker.Infrastructure.BanMachine.Mapping;
 using System.Runtime.CompilerServices;
 using CodeBlock = Itmo.Dev.Asap.Checker.Application.Models.CheckingResults.CodeBlock;
@@ -53,7 +52,7 @@ internal class BanMachineService : IBanMachineService
         }
     }
 
-    public async IAsyncEnumerable<SubmissionPairCheckingResult> GetCheckingResultDataAsync(
+    public async IAsyncEnumerable<BanMachinePairCheckingResult> GetCheckingResultDataAsync(
         CheckingId checkingId,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
@@ -76,7 +75,7 @@ internal class BanMachineService : IBanMachineService
 
             foreach (SubmissionPairAnalysisResultData data in response.Success.Data)
             {
-                yield return new SubmissionPairCheckingResult(
+                yield return new BanMachinePairCheckingResult(
                     data.FirstSubmissionId.MapToGuid(),
                     data.SecondSubmissionId.MapToGuid(),
                     data.SimilarityScore);
@@ -86,7 +85,7 @@ internal class BanMachineService : IBanMachineService
     }
 
     public async IAsyncEnumerable<SimilarCodeBlocks> GetCheckingResultCodeBlocksAsync(
-        CheckingResultCodeBlocksQuery query,
+        CheckingResultCodeBlocksRequest query,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var request = new GetAnalysisResultCodeBlocksRequest

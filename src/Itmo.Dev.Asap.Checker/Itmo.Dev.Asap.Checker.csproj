@@ -7,6 +7,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Application\Itmo.Dev.Asap.Checker.Application\Itmo.Dev.Asap.Checker.Application.csproj" />
       <ProjectReference Include="..\Infrastructure\Itmo.Dev.Asap.Checker.Infrastructure.BanMachine\Itmo.Dev.Asap.Checker.Infrastructure.BanMachine.csproj" />
+      <ProjectReference Include="..\Infrastructure\Itmo.Dev.Asap.Checker.Infrastructure.Core\Itmo.Dev.Asap.Checker.Infrastructure.Core.csproj" />
       <ProjectReference Include="..\Infrastructure\Itmo.Dev.Asap.Checker.Infrastructure.Persistence\Itmo.Dev.Asap.Checker.Infrastructure.Persistence.csproj" />
       <ProjectReference Include="..\Presentation\Itmo.Dev.Asap.Checker.Presentation.Grpc\Itmo.Dev.Asap.Checker.Presentation.Grpc.csproj" />
       <ProjectReference Include="..\Presentation\Itmo.Dev.Asap.Checker.Presentation.Kafka\Itmo.Dev.Asap.Checker.Presentation.Kafka.csproj" />

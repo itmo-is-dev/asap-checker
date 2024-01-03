@@ -40,6 +40,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Itmo.Dev.Asap.Checker.Prese
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Itmo.Dev.Asap.Checker.Presentation.Grpc", "src\Presentation\Itmo.Dev.Asap.Checker.Presentation.Grpc\Itmo.Dev.Asap.Checker.Presentation.Grpc.csproj", "{8119627B-30FC-4F85-BA57-2C02AB4081CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Itmo.Dev.Asap.Checker.Infrastructure.Core", "src\Infrastructure\Itmo.Dev.Asap.Checker.Infrastructure.Core\Itmo.Dev.Asap.Checker.Infrastructure.Core.csproj", "{3C4C97B2-9628-4D07-B725-850411E81BF3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,7 @@ Global
 		{FA5464FC-65E7-46CB-9FDE-1CDBC3FAA8A1} = {A70C6CD4-1C19-418D-856E-B781BF0A5733}
 		{9229842C-287E-47A0-BC62-0B300CEAD19C} = {1EE1E45D-CE02-419E-B5FB-84D2D7C34F07}
 		{8119627B-30FC-4F85-BA57-2C02AB4081CF} = {1EE1E45D-CE02-419E-B5FB-84D2D7C34F07}
+		{3C4C97B2-9628-4D07-B725-850411E81BF3} = {A70C6CD4-1C19-418D-856E-B781BF0A5733}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{E1171BAB-D8F2-42BB-86B3-A2DD7E9F75BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -97,5 +100,9 @@ Global
 		{8119627B-30FC-4F85-BA57-2C02AB4081CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8119627B-30FC-4F85-BA57-2C02AB4081CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8119627B-30FC-4F85-BA57-2C02AB4081CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C4C97B2-9628-4D07-B725-850411E81BF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C4C97B2-9628-4D07-B725-850411E81BF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C4C97B2-9628-4D07-B725-850411E81BF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C4C97B2-9628-4D07-B725-850411E81BF3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

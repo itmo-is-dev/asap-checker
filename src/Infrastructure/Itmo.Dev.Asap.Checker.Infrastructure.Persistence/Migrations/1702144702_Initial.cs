@@ -42,8 +42,11 @@ public class Initial : SqlMigration
     create table checking_results
     (
         task_id bigint not null ,
+        checking_result_assignment_id uuid not null ,
         checking_result_first_submission_id uuid not null ,
+        checking_result_first_group_id uuid not null ,
         checking_result_second_submission_id uuid not null ,
+        checking_result_second_group_id uuid not null ,
         checking_result_similarity_score float8 not null ,
         
         primary key (task_id, checking_result_first_submission_id, checking_result_second_submission_id)

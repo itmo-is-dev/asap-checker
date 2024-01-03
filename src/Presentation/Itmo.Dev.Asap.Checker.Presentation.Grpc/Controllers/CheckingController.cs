@@ -72,6 +72,8 @@ public class CheckingController : CheckingService.CheckingServiceBase
 
         var applicationRequest = new GetCheckingTaskResults.Request(
             request.TaskId,
+            request.AssignmentIds.Select(x => x.MapToGuid()).ToArray(),
+            request.GroupIds.Select(x => x.MapToGuid()).ToArray(),
             request.PageSize,
             pageToken);
 

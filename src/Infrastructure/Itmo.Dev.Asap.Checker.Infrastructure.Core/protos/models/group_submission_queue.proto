@@ -1,0 +1,11 @@
+syntax = "proto3";
+option csharp_namespace = "Itmo.Dev.Asap.Models";
+
+import "models/student.proto";
+import "models/submission.proto";
+
+message GroupSubmissionQueue {
+  string group_name = 1;
+  repeated Student students = 2;
+  repeated Submission submissions = 3;
+}

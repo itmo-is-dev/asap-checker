@@ -1,6 +1,6 @@
 namespace Itmo.Dev.Asap.Checker.Application.Abstractions.BanMachine.Models;
 
-public record CheckingResultCodeBlocksQuery(
+public record CheckingResultCodeBlocksRequest(
     CheckingId CheckingId,
     Guid FistSubmissionId,
     Guid SecondSubmissionId,

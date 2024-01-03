@@ -3,6 +3,7 @@ using Itmo.Dev.Asap.Checker.Application.Abstractions.BanMachine.Services;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.Persistence.Repositories;
 using Itmo.Dev.Asap.Checker.Application.Models.CheckingResults;
 using Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.Models;
+using Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.Services;
 using Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.States;
 using Itmo.Dev.Asap.Checker.Application.SubjectCourses.Options;
 using Itmo.Dev.Platform.BackgroundTasks.Tasks;
@@ -14,25 +15,28 @@ using System.Data;
 
 namespace Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.StateHandlers;
 
-public class LoadingResultsStateHandler : ICheckingTaskStateHandler
+internal class LoadingResultsStateHandler : ICheckingTaskStateHandler
 {
     private readonly LoadingResultsState _state;
     private readonly IBanMachineService _banMachineService;
     private readonly IPostgresTransactionProvider _transactionProvider;
     private readonly CheckingServiceOptions _options;
     private readonly ICheckingResultRepository _checkingResultRepository;
+    private readonly PairCheckingResultEnricher _resultEnricher;
 
     public LoadingResultsStateHandler(
         LoadingResultsState state,
         IBanMachineService banMachineService,
         IPostgresTransactionProvider transactionProvider,
         IOptions<CheckingServiceOptions> options,
-        ICheckingResultRepository checkingResultRepository)
+        ICheckingResultRepository checkingResultRepository,
+        PairCheckingResultEnricher resultEnricher)
     {
         _state = state;
         _banMachineService = banMachineService;
         _transactionProvider = transactionProvider;
         _checkingResultRepository = checkingResultRepository;
+        _resultEnricher = resultEnricher;
         _options = options.Value;
     }
 
@@ -40,21 +44,24 @@ public class LoadingResultsStateHandler : ICheckingTaskStateHandler
         CheckingTaskStateHandlerContext context,
         CancellationToken cancellationToken)
     {
-        IAsyncEnumerable<SubmissionPairCheckingResult> resultData = _banMachineService
+        IAsyncEnumerable<BanMachinePairCheckingResult> resultData = _banMachineService
             .GetCheckingResultDataAsync(_state.CheckingId, cancellationToken);
 
         await using NpgsqlTransaction transaction = await _transactionProvider
             .CreateTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
 
-        await foreach (SubmissionPairCheckingResult result in resultData)
+        await foreach (BanMachinePairCheckingResult result in resultData)
         {
             if (result.SimilarityScore < _options.MinimumSubmissionSimilarityScore)
                 continue;
 
-            await _checkingResultRepository
-                .AddCheckingResultAsync(context.BackgroundTaskId.Value, result, cancellationToken);
+            SubmissionPairCheckingResult checkingResult = await _resultEnricher
+                .EnrichAsync(result, cancellationToken);
 
-            var codeBlocksQuery = new CheckingResultCodeBlocksQuery(
+            await _checkingResultRepository
+                .AddCheckingResultAsync(context.BackgroundTaskId.Value, checkingResult, cancellationToken);
+
+            var codeBlocksQuery = new CheckingResultCodeBlocksRequest(
                 _state.CheckingId,
                 result.FirstSubmissionId,
                 result.SecondSubmissionId,

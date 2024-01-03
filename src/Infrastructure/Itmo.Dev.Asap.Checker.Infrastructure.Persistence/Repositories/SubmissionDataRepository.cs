@@ -30,6 +30,7 @@ public sealed class SubmissionDataRepository : ISubmissionDataRepository
         from submission_data
         where 
             (cardinality(:task_ids) = 0 or task_id = any (:task_ids))
+            and (cardinality(:submission_ids) = 0 or submission_id = any (:submission_ids))
             and (:should_ignore_cursor or submission_id > :submission_id_cursor)
         order by submission_id
         limit :limit;
@@ -39,6 +40,7 @@ public sealed class SubmissionDataRepository : ISubmissionDataRepository
 
         await using NpgsqlCommand command = new NpgsqlCommand(sql, connection)
             .AddParameter("task_ids", query.TaskIds)
+            .AddParameter("submission_ids", query.SubmissionIds)
             .AddParameter("should_ignore_cursor", query.SubmissionIdCursor is null)
             .AddParameter("submission_id_cursor", query.SubmissionIdCursor ?? Guid.Empty)
             .AddParameter("limit", query.PageSize);

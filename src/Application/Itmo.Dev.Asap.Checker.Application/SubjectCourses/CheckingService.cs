@@ -106,6 +106,8 @@ internal class CheckingService : ICheckingService
     {
         var query = CheckingResultDataQuery.Build(builder => builder
             .WithTaskId(request.TaskId)
+            .WithAssignmentIds(request.AssignmentIds)
+            .WithGroupIds(request.GroupIds)
             .WithPageSize(request.PageSize)
             .WithFirstSubmissionId(request.PageToken?.FirstSubmissionId)
             .WithSecondSubmissionId(request.PageToken?.SecondSubmissionId));

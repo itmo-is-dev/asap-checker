@@ -1,5 +1,6 @@
 using Itmo.Dev.Asap.Checker.Application.Extensions;
 using Itmo.Dev.Asap.Checker.Infrastructure.BanMachine.Extensions;
+using Itmo.Dev.Asap.Checker.Infrastructure.Core.Extensions;
 using Itmo.Dev.Asap.Checker.Infrastructure.Persistence.Extensions;
 using Itmo.Dev.Asap.Checker.Presentation.Grpc.Extensions;
 using Itmo.Dev.Asap.Checker.Presentation.Kafka.Extensions;
@@ -20,6 +21,7 @@ builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<JsonSerialize
 builder.Services
     .AddApplication()
     .AddInfrastructureBanMachine()
+    .AddInfrastructureCore()
     .AddInfrastructurePersistence()
     .AddPresentationGrpc()
     .AddPresentationKafka(builder.Configuration);

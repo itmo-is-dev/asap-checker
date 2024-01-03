@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 
 namespace Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.StateHandlers;
 
-public class StartingCheckingStateHandler : ICheckingTaskStateHandler
+internal class StartingCheckingStateHandler : ICheckingTaskStateHandler
 {
     private readonly StartingCheckingState _state;
     private readonly CheckingServiceOptions _options;
