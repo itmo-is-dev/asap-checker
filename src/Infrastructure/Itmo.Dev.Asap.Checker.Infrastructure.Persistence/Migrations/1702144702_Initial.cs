@@ -44,8 +44,10 @@ public class Initial : SqlMigration
         task_id bigint not null ,
         checking_result_assignment_id uuid not null ,
         checking_result_first_submission_id uuid not null ,
+        checking_result_first_user_id uuid not null ,
         checking_result_first_group_id uuid not null ,
         checking_result_second_submission_id uuid not null ,
+        checking_result_second_user_id uuid not null ,
         checking_result_second_group_id uuid not null ,
         checking_result_similarity_score float8 not null ,
         

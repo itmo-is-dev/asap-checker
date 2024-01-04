@@ -5,6 +5,8 @@ using Itmo.Dev.Asap.Checker.Models;
 using Itmo.Dev.Asap.Checker.Presentation.Grpc.Mapping;
 using Newtonsoft.Json;
 using CodeBlock = Itmo.Dev.Asap.Checker.Application.Models.CheckingResults.CodeBlock;
+using SimilarCodeBlocks = Itmo.Dev.Asap.Checker.Models.SimilarCodeBlocks;
+using SubmissionInfo = Itmo.Dev.Asap.Checker.Application.Models.CheckingResults.SubmissionInfo;
 
 namespace Itmo.Dev.Asap.Checker.Presentation.Grpc.Controllers;
 
@@ -82,9 +84,10 @@ public class CheckingController : CheckingService.CheckingServiceBase
 
         IEnumerable<CheckingResult> results = applicationResponse.Results.Select(result => new CheckingResult
         {
-            FirstSubmissionId = result.FirstSubmissionId.ToString(),
-            SecondSubmissionId = result.SecondSubmissionId.ToString(),
+            FirstSubmission = Map(result.FirstSubmission),
+            SecondSubmission = Map(result.SecondSubmission),
             SimilarityScore = result.SimilarityScore,
+            AssignmentId = result.AssignmentId.ToString(),
         });
 
         return new GetResultsResponse
@@ -132,6 +135,16 @@ public class CheckingController : CheckingService.CheckingServiceBase
             LineFrom = codeBlock.LineFrom,
             LineTo = codeBlock.LineTo,
             Content = codeBlock.Content,
+        };
+    }
+
+    private static Itmo.Dev.Asap.Checker.Models.SubmissionInfo Map(SubmissionInfo submission)
+    {
+        return new Models.SubmissionInfo
+        {
+            SubmissionId = submission.Id.ToString(),
+            UserId = submission.UserId.ToString(),
+            GroupId = submission.GroupId.ToString(),
         };
     }
 }

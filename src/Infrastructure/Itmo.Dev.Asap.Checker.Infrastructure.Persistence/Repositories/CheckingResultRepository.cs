@@ -24,8 +24,10 @@ public class CheckingResultRepository : ICheckingResultRepository
         const string sql = """
         select checking_result_assignment_id,
                checking_result_first_submission_id,
+               checking_result_first_user_id,
                checking_result_first_group_id,
                checking_result_second_submission_id, 
+               checking_result_second_user_id, 
                checking_result_second_group_id, 
                checking_result_similarity_score
         from checking_results
@@ -56,8 +58,10 @@ public class CheckingResultRepository : ICheckingResultRepository
 
         int assignmentId = reader.GetOrdinal("checking_result_assignment_id");
         int firstSubmissionId = reader.GetOrdinal("checking_result_first_submission_id");
+        int firstUserId = reader.GetOrdinal("checking_result_first_user_id");
         int firstGroupId = reader.GetOrdinal("checking_result_first_group_id");
         int secondSubmissionId = reader.GetOrdinal("checking_result_second_submission_id");
+        int secondUserId = reader.GetOrdinal("checking_result_second_user_id");
         int secondGroupId = reader.GetOrdinal("checking_result_second_group_id");
         int similarityScore = reader.GetOrdinal("checking_result_similarity_score");
 
@@ -65,10 +69,14 @@ public class CheckingResultRepository : ICheckingResultRepository
         {
             yield return new SubmissionPairCheckingResult(
                 AssignmentId: reader.GetGuid(assignmentId),
-                FirstSubmissionId: reader.GetGuid(firstSubmissionId),
-                FirstSubmissionGroupId: reader.GetGuid(firstGroupId),
-                SecondSubmissionId: reader.GetGuid(secondSubmissionId),
-                SecondSubmissionGroupId: reader.GetGuid(secondGroupId),
+                FirstSubmission: new SubmissionInfo(
+                    Id: reader.GetGuid(firstSubmissionId),
+                    UserId: reader.GetGuid(firstUserId),
+                    GroupId: reader.GetGuid(firstGroupId)),
+                SecondSubmission: new SubmissionInfo(
+                    Id: reader.GetGuid(secondSubmissionId),
+                    UserId: reader.GetGuid(secondUserId),
+                    GroupId: reader.GetGuid(secondGroupId)),
                 SimilarityScore: reader.GetDouble(similarityScore));
         }
     }
@@ -117,17 +125,34 @@ public class CheckingResultRepository : ICheckingResultRepository
         CancellationToken cancellationToken)
     {
         const string sql = """
-        insert into checking_results
-        (task_id, checking_result_first_submission_id, checking_result_second_submission_id, checking_result_similarity_score) 
-        values (:task_id, :first_submission_id, :second_submission_id, :similarity_score);
+        insert into checking_results(task_id, 
+                                     checking_result_first_submission_id,
+                                     checking_result_first_user_id,
+                                     checking_result_first_group_id,
+                                     checking_result_second_submission_id,
+                                     checking_result_second_user_id,
+                                     checking_result_second_group_id,
+                                     checking_result_similarity_score) 
+        values (:task_id, 
+                :first_submission_id, 
+                :first_user_id, 
+                :first_group_id,
+                :second_submission_id,
+                :second_user_id,
+                :second_group_id,
+                :similarity_score);
         """;
 
         NpgsqlConnection connection = await _connectionProvider.GetConnectionAsync(cancellationToken);
 
         await using NpgsqlCommand command = new NpgsqlCommand(sql, connection)
             .AddParameter("task_id", taskId)
-            .AddParameter("first_submission_id", result.FirstSubmissionId)
-            .AddParameter("second_submission_id", result.SecondSubmissionId)
+            .AddParameter("first_submission_id", result.FirstSubmission.Id)
+            .AddParameter("first_user_id", result.FirstSubmission.UserId)
+            .AddParameter("first_group_id", result.FirstSubmission.GroupId)
+            .AddParameter("second_submission_id", result.SecondSubmission.Id)
+            .AddParameter("second_user_id", result.SecondSubmission.UserId)
+            .AddParameter("second_group_id", result.SecondSubmission.GroupId)
             .AddParameter("similarity_score", result.SimilarityScore);
 
         await command.ExecuteNonQueryAsync(cancellationToken);

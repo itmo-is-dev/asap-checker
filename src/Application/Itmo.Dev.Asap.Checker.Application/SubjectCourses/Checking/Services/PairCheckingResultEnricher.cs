@@ -38,10 +38,13 @@ internal class PairCheckingResultEnricher
 
         return new SubmissionPairCheckingResult(
             AssignmentId: data[0].AssignmentId,
-            FirstSubmissionId: data[0].SubmissionId,
-            FirstSubmissionGroupId: students[data[0].UserId].GroupId,
-            SecondSubmissionId: data[1].SubmissionId,
-            SecondSubmissionGroupId: students[data[1].UserId].GroupId,
+            FirstSubmission: Map(data[0], students[data[0].UserId]),
+            SecondSubmission: Map(data[1], students[data[1].UserId]),
             SimilarityScore: result.SimilarityScore);
+    }
+
+    private static SubmissionInfo Map(SubmissionData submission, Student student)
+    {
+        return new SubmissionInfo(submission.SubmissionId, student.Id, student.GroupId);
     }
 }
