@@ -121,10 +121,10 @@ public class CheckingController : CheckingService.CheckingServiceBase
             SimilarityScore = block.SimilarityScore,
         });
 
-        return new GetResultCodeBlocksResponse
-        {
-            CodeBlocks = { codeBlocks },
-        };
+        var response = new GetResultCodeBlocksResponse { CodeBlocks = { codeBlocks } };
+        response.HasNext = response.CodeBlocks.Count.Equals(request.PageSize);
+
+        return response;
     }
 
     private static Itmo.Dev.Asap.Checker.Models.CodeBlock Map(CodeBlock codeBlock)

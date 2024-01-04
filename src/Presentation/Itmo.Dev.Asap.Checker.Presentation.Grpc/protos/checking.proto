@@ -73,4 +73,5 @@ message GetResultCodeBlocksRequest {
 
 message GetResultCodeBlocksResponse {
   repeated SimilarCodeBlocks code_blocks = 1;
+  bool has_next = 2;
 }
