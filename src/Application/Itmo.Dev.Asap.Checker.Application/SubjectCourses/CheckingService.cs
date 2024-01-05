@@ -90,7 +90,10 @@ internal class CheckingService : ICheckingService
 
         SubjectCourseCheckingTask[] tasks = await _backgroundTaskRepository
             .QueryAsync(query, cancellationToken)
-            .Select(x => new SubjectCourseCheckingTask(x.Id.Value, x.CreatedAt))
+            .Select(x => new SubjectCourseCheckingTask(
+                x.Id.Value,
+                x.CreatedAt,
+                x.State is BackgroundTaskState.Completed))
             .ToArrayAsync(cancellationToken);
 
         GetCheckingTasks.PageToken? pageToken = tasks.Length.Equals(request.PageSize)
@@ -142,5 +145,5 @@ internal class CheckingService : ICheckingService
     }
 
     private static GetCheckingTaskResults.PageToken MapToPageToken(SubmissionPairCheckingResult result)
-        => new GetCheckingTaskResults.PageToken(result.FirstSubmissionId, result.SecondSubmissionId);
+        => new GetCheckingTaskResults.PageToken(result.FirstSubmission.Id, result.SecondSubmission.Id);
 }

@@ -54,6 +54,7 @@ public class CheckingController : CheckingService.CheckingServiceBase
         {
             TaskId = task.Id,
             CreatedAt = Timestamp.FromDateTimeOffset(task.CreatedAt),
+            IsCompleted = task.IsCompleted,
         });
 
         return new GetTasksResponse
