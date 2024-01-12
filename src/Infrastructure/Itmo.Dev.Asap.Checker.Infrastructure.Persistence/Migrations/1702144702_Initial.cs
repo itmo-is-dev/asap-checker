@@ -12,10 +12,10 @@ public class Initial : SqlMigration
     """
     create type code_block as
     (
-        code_block_file_path text ,
-        code_block_line_from int ,
-        code_block_line_to int ,
-        code_block_content text
+        file_path text ,
+        line_from int ,
+        line_to int ,
+        content text
     );   
 
     create table subject_course_dump_tasks

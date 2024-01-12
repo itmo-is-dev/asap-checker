@@ -13,6 +13,7 @@
       <ProjectReference Include="..\Presentation\Itmo.Dev.Asap.Checker.Presentation.Kafka\Itmo.Dev.Asap.Checker.Presentation.Kafka.csproj" />
     </ItemGroup>
     <ItemGroup>
+      <PackageReference Include="Itmo.Dev.Platform.Logging" />
       <PackageReference Include="Itmo.Dev.Platform.YandexCloud" />
       <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
     </ItemGroup>

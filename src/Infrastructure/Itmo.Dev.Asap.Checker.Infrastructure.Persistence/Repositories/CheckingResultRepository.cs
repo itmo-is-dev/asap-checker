@@ -48,6 +48,8 @@ public class CheckingResultRepository : ICheckingResultRepository
 
         await using NpgsqlCommand command = new NpgsqlCommand(sql, connection)
             .AddParameter("task_id", query.TaskId)
+            .AddParameter("assignment_ids", query.AssignmentIds)
+            .AddParameter("group_ids", query.GroupIds)
             .AddParameter("should_ignore_first_filter", query.FirstSubmissionId is null)
             .AddParameter("should_ignore_second_filter", query.SecondSubmissionId is null)
             .AddParameter("first_submission_id", query.FirstSubmissionId ?? Guid.Empty)
@@ -86,8 +88,8 @@ public class CheckingResultRepository : ICheckingResultRepository
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         const string sql = """
-        select checking_result_code_block_first,
-               checking_result_code_block_second, 
+        select checking_result_code_block_first::code_block,
+               checking_result_code_block_second::code_block, 
                checking_result_code_block_similarity_score
         from checking_result_code_blocks
         where 
@@ -126,6 +128,7 @@ public class CheckingResultRepository : ICheckingResultRepository
     {
         const string sql = """
         insert into checking_results(task_id, 
+                                     checking_result_assignment_id,
                                      checking_result_first_submission_id,
                                      checking_result_first_user_id,
                                      checking_result_first_group_id,
@@ -134,6 +137,7 @@ public class CheckingResultRepository : ICheckingResultRepository
                                      checking_result_second_group_id,
                                      checking_result_similarity_score) 
         values (:task_id, 
+                :assignment_id,
                 :first_submission_id, 
                 :first_user_id, 
                 :first_group_id,
@@ -147,6 +151,7 @@ public class CheckingResultRepository : ICheckingResultRepository
 
         await using NpgsqlCommand command = new NpgsqlCommand(sql, connection)
             .AddParameter("task_id", taskId)
+            .AddParameter("assignment_id", result.AssignmentId)
             .AddParameter("first_submission_id", result.FirstSubmission.Id)
             .AddParameter("first_user_id", result.FirstSubmission.UserId)
             .AddParameter("first_group_id", result.FirstSubmission.GroupId)
