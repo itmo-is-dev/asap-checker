@@ -5,7 +5,7 @@ COPY ./*.sln .
 COPY ./*.props ./
 COPY ./.editorconfig .
 
-RUN dotnet restore "src/Itmo.Dev.Asap.Github/Itmo.Dev.Asap.Checker.csproj"
+RUN dotnet restore "src/Itmo.Dev.Asap.Checker/Itmo.Dev.Asap.Checker.csproj"
 
 FROM build AS publish
 WORKDIR "/source/src/Itmo.Dev.Asap.Checker"
