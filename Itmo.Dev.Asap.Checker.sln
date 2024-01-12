@@ -32,6 +32,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{A8B063
 	ProjectSection(SolutionItems) = preProject
 		docker\docker-compose.yaml = docker\docker-compose.yaml
 		docker\.env = docker\.env
+		Dockerfile = Dockerfile
+		.dockerignore = .dockerignore
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Itmo.Dev.Asap.Checker.Infrastructure.BanMachine", "src\Infrastructure\Itmo.Dev.Asap.Checker.Infrastructure.BanMachine\Itmo.Dev.Asap.Checker.Infrastructure.BanMachine.csproj", "{FA5464FC-65E7-46CB-9FDE-1CDBC3FAA8A1}"
