@@ -1,4 +1,3 @@
-using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Itmo.Dev.Asap.Checker.Application.Contracts.Checking;
 using Itmo.Dev.Asap.Checker.Models;
@@ -28,7 +27,14 @@ public class CheckingController : CheckingService.CheckingServiceBase
 
         return applicationResponse switch
         {
-            StartChecking.Response.Success => new StartResponse { Success = new() },
+            StartChecking.Response.Success success => new StartResponse
+            {
+                Success = new StartResponse.Types.Success
+                {
+                    Checking = success.CheckingTask.MapToProtoModel(),
+                },
+            },
+
             StartChecking.Response.AlreadyInProgress => new StartResponse { AlreadyInProgress = new() },
             StartChecking.Response.SubjectCourseNotFound => new StartResponse { SubjectCourseNotFound = new() },
             _ => throw new RpcException(new Status(StatusCode.Internal, "Operation yielded unexpected result")),
@@ -50,12 +56,7 @@ public class CheckingController : CheckingService.CheckingServiceBase
         GetCheckingTasks.Response applicationResponse = await _service
             .GetCheckingTasksAsync(applicationRequest, context.CancellationToken);
 
-        IEnumerable<CheckingTask> tasks = applicationResponse.Tasks.Select(task => new CheckingTask
-        {
-            TaskId = task.Id,
-            CreatedAt = Timestamp.FromDateTimeOffset(task.CreatedAt),
-            IsCompleted = task.IsCompleted,
-        });
+        IEnumerable<CheckingTask> tasks = applicationResponse.Tasks.Select(task => task.MapToProtoModel());
 
         return new GetTasksResponse
         {

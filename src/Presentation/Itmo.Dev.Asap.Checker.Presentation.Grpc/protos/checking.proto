@@ -28,6 +28,7 @@ message StartResponse {
   }
   
   message Success {
+    CheckingTask checking = 1;
   }
   
   message SubjectCourseNotFound {

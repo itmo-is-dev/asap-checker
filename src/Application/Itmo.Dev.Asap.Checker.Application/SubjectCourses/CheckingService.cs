@@ -62,13 +62,20 @@ internal class CheckingService : ICheckingService
         if (isAlreadyInProgress)
             return new StartChecking.Response.AlreadyInProgress();
 
-        await _backgroundTaskRunner
+        BackgroundTaskId backgroundTaskId = await _backgroundTaskRunner
             .StartBackgroundTask
             .WithMetadata(taskMetadata)
             .WithExecutionMetadata(new CheckingTaskExecutionMetadata())
             .RunWithAsync<CheckingTask>(cancellationToken);
 
-        return new StartChecking.Response.Success();
+        BackgroundTask backgroundTask = await _backgroundTaskRepository
+            .QueryAsync(BackgroundTaskQuery.Build(x => x.WithId(backgroundTaskId)), cancellationToken)
+            .SingleAsync(cancellationToken);
+
+        return new StartChecking.Response.Success(new SubjectCourseCheckingTask(
+            backgroundTaskId.Value,
+            backgroundTask.CreatedAt,
+            backgroundTask.State is BackgroundTaskState.Completed));
     }
 
     public async Task<GetCheckingTasks.Response> GetCheckingTasksAsync(
