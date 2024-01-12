@@ -14,7 +14,7 @@ public static class ServiceCollectionExtensions
     {
         collection
             .AddOptions<BanMachineClientOptions>()
-            .BindConfiguration("Infrastructure:BanMachine:Client");
+            .BindConfiguration("Infrastructure:BanMachine");
 
         collection.AddGrpcClient<AnalysisService.AnalysisServiceClient>(ConfigureAddress);
         collection.AddGrpcClient<AnalysisResultsService.AnalysisResultsServiceClient>(ConfigureAddress);

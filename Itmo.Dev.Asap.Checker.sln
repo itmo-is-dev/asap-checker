@@ -45,6 +45,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{7F1D1EE0-05CB-409A-A3EC-8C6D5BC2705D}"
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\dotnet-build.yml = .github\workflows\dotnet-build.yml
+		.github\workflows\deploy.yml = .github\workflows\deploy.yml
+		.github\workflows\purge-allure-history.yml = .github\workflows\purge-allure-history.yml
 	EndProjectSection
 EndProject
 Global
