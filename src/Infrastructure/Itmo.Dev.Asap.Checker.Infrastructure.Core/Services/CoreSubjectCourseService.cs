@@ -14,16 +14,9 @@ public class CoreSubjectCourseService : ICoreSubjectCourseService
 
     public async Task<bool> SubjectCourseExistsAsync(Guid subjectCourseId, CancellationToken cancellationToken)
     {
-        try
-        {
-            var request = new GetByIdRequest { Id = subjectCourseId.ToString() };
-            await _client.GetByIdAsync(request, cancellationToken: cancellationToken);
+        var request = new QueryRequest { SubjectCourseIds = { subjectCourseId.ToString() } };
+        QueryResponse response = await _client.QueryAsync(request, cancellationToken: cancellationToken);
 
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
+        return response.SubjectCourses is not [];
     }
 }
