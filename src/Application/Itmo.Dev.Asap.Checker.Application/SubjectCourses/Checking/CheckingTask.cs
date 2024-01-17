@@ -49,6 +49,9 @@ public class CheckingTask : IBackgroundTask<
             DumpingContentState state
                 => ActivatorUtilities.CreateInstance<DumpingContentStateHandler>(_serviceProvider, state),
 
+            StartingCheckingState state
+                => ActivatorUtilities.CreateInstance<StartingCheckingStateHandler>(_serviceProvider, state),
+
             LoadingResultsState state
                 => ActivatorUtilities.CreateInstance<LoadingResultsStateHandler>(_serviceProvider, state),
 
