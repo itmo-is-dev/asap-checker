@@ -50,7 +50,10 @@ internal class StartingCheckingStateHandler : ICheckingTaskStateHandler
 
             await _banMachineService.AddCheckingDataAsync(checkingId, data, cancellationToken);
 
-            query = query with { SubmissionIdCursor = data[^1].SubmissionId };
+            query = query with
+            {
+                SubmissionIdCursor = data is [] ? null : data[^1].SubmissionId,
+            };
         }
         while (data.Length == _options.SubmissionDataPageSize);
 
