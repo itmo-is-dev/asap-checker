@@ -52,6 +52,20 @@ internal class BanMachineService : IBanMachineService
         }
     }
 
+    public async Task StartCheckingAsync(CheckingId checkingId, CancellationToken cancellationToken)
+    {
+        var request = new StartAnalysisRequest { AnalysisId = checkingId.Value };
+
+        StartAnalysisResponse response = await _analysisServiceClient
+            .StartAsync(request, cancellationToken: cancellationToken);
+
+        if (response.ResultCase is not StartAnalysisResponse.ResultOneofCase.Success)
+        {
+            throw new InvalidOperationException(
+                $"Failed to start analysis, result = {response.ResultCase}");
+        }
+    }
+
     public async IAsyncEnumerable<BanMachinePairCheckingResult> GetCheckingResultDataAsync(
         CheckingId checkingId,
         [EnumeratorCancellation] CancellationToken cancellationToken)

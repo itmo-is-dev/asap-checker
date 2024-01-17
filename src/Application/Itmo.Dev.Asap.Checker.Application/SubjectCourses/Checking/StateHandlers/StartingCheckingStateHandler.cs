@@ -57,6 +57,8 @@ internal class StartingCheckingStateHandler : ICheckingTaskStateHandler
         }
         while (data.Length == _options.SubmissionDataPageSize);
 
+        await _banMachineService.StartCheckingAsync(checkingId, cancellationToken);
+
         return new CheckingTaskStateExecutionResult(
             new LoadingResultsState(checkingId),
             new BackgroundTaskExecutionResult<EmptyExecutionResult, CheckingTaskError>.Suspended());
