@@ -71,7 +71,7 @@ public sealed class SubmissionDataRepository : ISubmissionDataRepository
         const string sql = """
         insert into submission_data(submission_id, user_id, assignment_id, task_id, submission_data_file_link)
         select * from unnest(:submission_ids, :user_ids, :assignment_ids, :task_ids, :file_links)
-        on conflict do update set submission_data_file_link = excluded.submission_data_file_link;
+        on conflict on constraint submission_data_pkey do update set submission_data_file_link = excluded.submission_data_file_link;
         """;
 
         NpgsqlConnection connection = await _connectionProvider.GetConnectionAsync(cancellationToken);
