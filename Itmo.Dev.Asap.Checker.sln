@@ -51,6 +51,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		.github\workflows\purge-allure-history.yml = .github\workflows\purge-allure-history.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Itmo.Dev.Asap.Checker.Infrastructure.Github", "src\Infrastructure\Itmo.Dev.Asap.Checker.Infrastructure.Github\Itmo.Dev.Asap.Checker.Infrastructure.Github.csproj", "{7B77644F-E5EF-463F-92D3-7BA39CAA4231}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +74,7 @@ Global
 		{8119627B-30FC-4F85-BA57-2C02AB4081CF} = {1EE1E45D-CE02-419E-B5FB-84D2D7C34F07}
 		{3C4C97B2-9628-4D07-B725-850411E81BF3} = {A70C6CD4-1C19-418D-856E-B781BF0A5733}
 		{7F1D1EE0-05CB-409A-A3EC-8C6D5BC2705D} = {8652AC49-CAC8-4672-8786-CD4A55A64498}
+		{7B77644F-E5EF-463F-92D3-7BA39CAA4231} = {A70C6CD4-1C19-418D-856E-B781BF0A5733}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{E1171BAB-D8F2-42BB-86B3-A2DD7E9F75BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -114,5 +117,9 @@ Global
 		{3C4C97B2-9628-4D07-B725-850411E81BF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C4C97B2-9628-4D07-B725-850411E81BF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C4C97B2-9628-4D07-B725-850411E81BF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B77644F-E5EF-463F-92D3-7BA39CAA4231}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B77644F-E5EF-463F-92D3-7BA39CAA4231}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B77644F-E5EF-463F-92D3-7BA39CAA4231}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B77644F-E5EF-463F-92D3-7BA39CAA4231}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
