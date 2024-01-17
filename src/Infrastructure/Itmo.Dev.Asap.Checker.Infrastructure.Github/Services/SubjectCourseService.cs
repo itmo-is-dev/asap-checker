@@ -1,6 +1,7 @@
 using Itmo.Dev.Asap.Checker.Application.Abstractions.Github;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.Github.Results;
 using Itmo.Dev.Asap.Github.SubjectCourses;
+using System.Diagnostics;
 using static Itmo.Dev.Asap.Github.SubjectCourses.StartContentDumpResponse;
 
 namespace Itmo.Dev.Asap.Checker.Infrastructure.Github.Services;
@@ -34,7 +35,7 @@ public class SubjectCourseService : IGithubSubjectCourseService
             ResultOneofCase.SubjectCourseNotFound
                 => new StartContentDumpResult.SubjectCourseNotFound(),
 
-            _ or ResultOneofCase.None => throw new ArgumentOutOfRangeException(),
+            _ or ResultOneofCase.None => throw new UnreachableException(),
         };
     }
 }
