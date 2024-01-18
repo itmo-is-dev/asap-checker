@@ -58,8 +58,8 @@ await using (AsyncServiceScope scope = app.Services.CreateAsyncScope())
 }
 
 app.UseRouting();
-app.UsePlatformSentryTracing(app.Configuration);
 
+app.UsePlatformSentryTracing(app.Configuration);
 app.UsePresentationGrpc();
 
 await app.RunAsync();
