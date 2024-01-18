@@ -21,7 +21,11 @@ internal class CoreStudentService : ICoreStudentService
         IEnumerable<Guid> studentIds,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        var request = new QueryStudentRequest { Ids = { studentIds.Select(x => x.ToString()) } };
+        var request = new QueryStudentRequest
+        {
+            Ids = { studentIds.Select(x => x.ToString()) },
+            PageSize = int.MaxValue,
+        };
 
         if (_logger.IsEnabled(LogLevel.Trace))
         {
