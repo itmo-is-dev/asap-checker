@@ -3,6 +3,7 @@ using Itmo.Dev.Asap.BanMachine.Models;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.BanMachine.Models;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.BanMachine.Services;
 using Itmo.Dev.Asap.Checker.Infrastructure.BanMachine.Mapping;
+using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 using CodeBlock = Itmo.Dev.Asap.Checker.Application.Models.CheckingResults.CodeBlock;
 using SimilarCodeBlocks = Itmo.Dev.Asap.Checker.Application.Models.CheckingResults.SimilarCodeBlocks;
@@ -14,13 +15,16 @@ internal class BanMachineService : IBanMachineService
 {
     private readonly AnalysisService.AnalysisServiceClient _analysisServiceClient;
     private readonly AnalysisResultsService.AnalysisResultsServiceClient _analysisResultsServiceClient;
+    private readonly ILogger<BanMachineService> _logger;
 
     public BanMachineService(
         AnalysisService.AnalysisServiceClient analysisServiceClient,
-        AnalysisResultsService.AnalysisResultsServiceClient analysisResultsServiceClient)
+        AnalysisResultsService.AnalysisResultsServiceClient analysisResultsServiceClient,
+        ILogger<BanMachineService> logger)
     {
         _analysisServiceClient = analysisServiceClient;
         _analysisResultsServiceClient = analysisResultsServiceClient;
+        _logger = logger;
     }
 
     public async Task<CheckingId> CreateCheckingAsync(CancellationToken cancellationToken)
@@ -89,6 +93,12 @@ internal class BanMachineService : IBanMachineService
 
             foreach (SubmissionPairAnalysisResultData data in response.Success.Data)
             {
+                _logger.LogTrace(
+                    "Received pair checking result, first submission = {FirstSubmissionId}, second submission = {SecondSubmissionId}, score = {Score}",
+                    data.FirstSubmissionId,
+                    data.SecondSubmissionId,
+                    data.SimilarityScore);
+
                 yield return new BanMachinePairCheckingResult(
                     data.FirstSubmissionId.MapToGuid(),
                     data.SecondSubmissionId.MapToGuid(),
