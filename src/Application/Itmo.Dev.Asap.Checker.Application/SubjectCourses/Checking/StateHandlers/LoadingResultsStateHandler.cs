@@ -56,7 +56,7 @@ internal class LoadingResultsStateHandler : ICheckingTaskStateHandler
                 continue;
 
             SubmissionPairCheckingResult checkingResult = await _resultEnricher
-                .EnrichAsync(result, cancellationToken);
+                .EnrichAsync(context.BackgroundTaskId.Value, result, cancellationToken);
 
             await _checkingResultRepository
                 .AddCheckingResultAsync(context.BackgroundTaskId.Value, checkingResult, cancellationToken);

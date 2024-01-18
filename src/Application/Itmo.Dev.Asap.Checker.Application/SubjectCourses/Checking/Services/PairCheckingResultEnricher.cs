@@ -20,26 +20,28 @@ internal class PairCheckingResultEnricher
     }
 
     public async Task<SubmissionPairCheckingResult> EnrichAsync(
+        long taskId,
         BanMachinePairCheckingResult result,
         CancellationToken cancellationToken)
     {
         var query = SubmissionDataQuery.Build(builder => builder
+            .WithTaskId(taskId)
             .WithSubmissionId(result.FirstSubmissionId)
             .WithSubmissionId(result.SecondSubmissionId)
             .WithPageSize(2));
 
-        SubmissionData[] data = await _context.SubmissionData
+        Dictionary<Guid, SubmissionData> data = await _context.SubmissionData
             .QueryAsync(query, cancellationToken)
-            .ToArrayAsync(cancellationToken);
+            .ToDictionaryAsync(x => x.SubmissionId, cancellationToken);
 
         Dictionary<Guid, Student> students = await _studentService
-            .GetByIdsAsync(data.Select(x => x.UserId), cancellationToken)
+            .GetByIdsAsync(data.Select(x => x.Value.UserId), cancellationToken)
             .ToDictionaryAsync(x => x.Id, cancellationToken);
 
         return new SubmissionPairCheckingResult(
-            AssignmentId: data[0].AssignmentId,
-            FirstSubmission: Map(data[0], students[data[0].UserId]),
-            SecondSubmission: Map(data[1], students[data[1].UserId]),
+            AssignmentId: data[result.FirstSubmissionId].AssignmentId,
+            FirstSubmission: Map(data[result.FirstSubmissionId], students[data[result.FirstSubmissionId].UserId]),
+            SecondSubmission: Map(data[result.SecondSubmissionId], students[data[result.SecondSubmissionId].UserId]),
             SimilarityScore: result.SimilarityScore);
     }
 
