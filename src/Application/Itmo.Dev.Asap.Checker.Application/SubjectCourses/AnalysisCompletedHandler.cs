@@ -1,7 +1,6 @@
 using Itmo.Dev.Asap.Checker.Application.Contracts.Checking.Notifications;
 using Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking;
 using Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.States;
-using Itmo.Dev.Platform.BackgroundTasks.Extensions;
 using Itmo.Dev.Platform.BackgroundTasks.Managing;
 using Itmo.Dev.Platform.BackgroundTasks.Models;
 using Itmo.Dev.Platform.BackgroundTasks.Persistence;
@@ -36,7 +35,7 @@ internal class AnalysisCompletedHandler : IEventHandler<AnalysisCompletedEvent>
         var checkingTaskQuery = BackgroundTaskQuery.Build(builder => builder
             .WithName(CheckingTask.Name)
             .WithExecutionMetadata(executionMetadata)
-            .WithActiveState());
+            .WithState(BackgroundTaskState.Suspended));
 
         BackgroundTask? checkingTask = await _backgroundTaskRepository
             .QueryAsync(checkingTaskQuery, cancellationToken)
