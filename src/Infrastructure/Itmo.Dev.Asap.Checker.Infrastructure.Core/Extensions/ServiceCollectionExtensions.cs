@@ -1,6 +1,7 @@
 using Grpc.Net.ClientFactory;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.Core;
 using Itmo.Dev.Asap.Checker.Infrastructure.Core.Services;
+using Itmo.Dev.Asap.Core.Students;
 using Itmo.Dev.Asap.Core.SubjectCourses;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -15,7 +16,7 @@ public static class ServiceCollectionExtensions
             .AddOptions<CoreOptions>()
             .BindConfiguration("Infrastructure:Core");
 
-        collection.AddGrpcClient<SubjectCourseService.SubjectCourseServiceClient>(ConfigureAddress);
+        collection.AddGrpcClient<StudentService.StudentServiceClient>(ConfigureAddress);
         collection.AddScoped<ICoreStudentService, CoreStudentService>();
 
         collection.AddGrpcClient<SubjectCourseService.SubjectCourseServiceClient>(ConfigureAddress);
