@@ -1,7 +1,7 @@
-using Itmo.Dev.Asap.Checker.Application.Abstractions.BanMachine.Models;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.BanMachine.Services;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.Persistence.Queries;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.Persistence.Repositories;
+using Itmo.Dev.Asap.Checker.Application.Models;
 using Itmo.Dev.Asap.Checker.Application.Models.Submissions;
 using Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.Models;
 using Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.States;
@@ -12,33 +12,32 @@ using Microsoft.Extensions.Options;
 
 namespace Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.StateHandlers;
 
-internal class StartingCheckingStateHandler : ICheckingTaskStateHandler
+internal class StartingAnalysisStateHandler : ICheckingTaskStateHandler<StartingAnalysisState>
 {
-    private readonly StartingCheckingState _state;
     private readonly CheckingServiceOptions _options;
     private readonly IBanMachineService _banMachineService;
     private readonly ISubmissionDataRepository _submissionDataRepository;
 
-    public StartingCheckingStateHandler(
-        StartingCheckingState state,
+    public StartingAnalysisStateHandler(
         IOptions<CheckingServiceOptions> options,
         IBanMachineService banMachineService,
         ISubmissionDataRepository submissionDataRepository)
     {
-        _state = state;
         _banMachineService = banMachineService;
         _submissionDataRepository = submissionDataRepository;
         _options = options.Value;
     }
 
-    public async Task<CheckingTaskStateExecutionResult> HandleAsync(
+    public async ValueTask<CheckingTaskStateExecutionResult> HandleAsync(
+        StartingAnalysisState state,
         CheckingTaskStateHandlerContext context,
         CancellationToken cancellationToken)
     {
-        CheckingId checkingId = await _banMachineService.CreateCheckingAsync(cancellationToken);
+        AnalysisId analysisId = await _banMachineService.CreateAnalysisAsync(cancellationToken);
 
-        var query = SubmissionDataQuery.Build(x
-            => x.WithTaskId(_state.DumpTaskId).WithPageSize(_options.SubmissionDataPageSize));
+        var query = SubmissionDataQuery.Build(builder => builder
+            .WithCheckingId(new CheckingId(context.BackgroundTaskId.Value))
+            .WithPageSize(_options.SubmissionDataPageSize));
 
         SubmissionData[] data;
 
@@ -48,7 +47,7 @@ internal class StartingCheckingStateHandler : ICheckingTaskStateHandler
                 .QueryAsync(query, cancellationToken)
                 .ToArrayAsync(cancellationToken);
 
-            await _banMachineService.AddCheckingDataAsync(checkingId, data, cancellationToken);
+            await _banMachineService.AddAnalysisDataAsync(analysisId, data, cancellationToken);
 
             query = query with
             {
@@ -57,10 +56,10 @@ internal class StartingCheckingStateHandler : ICheckingTaskStateHandler
         }
         while (data.Length == _options.SubmissionDataPageSize);
 
-        await _banMachineService.StartCheckingAsync(checkingId, cancellationToken);
+        await _banMachineService.StartAnalysisAsync(analysisId, cancellationToken);
 
-        return new CheckingTaskStateExecutionResult(
-            new LoadingResultsState(checkingId),
+        return new CheckingTaskStateExecutionResult.FinishedWithResult(
+            new WaitingAnalysisState(analysisId),
             new BackgroundTaskExecutionResult<EmptyExecutionResult, CheckingTaskError>.Suspended());
     }
 }

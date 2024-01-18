@@ -10,7 +10,7 @@ public static class CheckingTaskMapper
     {
         return new CheckingTask
         {
-            TaskId = task.Id,
+            TaskId = task.Id.Value,
             CreatedAt = Timestamp.FromDateTimeOffset(task.CreatedAt),
             IsCompleted = task.IsCompleted,
         };

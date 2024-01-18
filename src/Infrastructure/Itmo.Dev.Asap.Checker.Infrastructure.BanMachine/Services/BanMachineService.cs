@@ -2,6 +2,7 @@ using Itmo.Dev.Asap.BanMachine;
 using Itmo.Dev.Asap.BanMachine.Models;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.BanMachine.Models;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.BanMachine.Services;
+using Itmo.Dev.Asap.Checker.Application.Models;
 using Itmo.Dev.Asap.Checker.Infrastructure.BanMachine.Mapping;
 using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
@@ -27,22 +28,22 @@ internal class BanMachineService : IBanMachineService
         _logger = logger;
     }
 
-    public async Task<CheckingId> CreateCheckingAsync(CancellationToken cancellationToken)
+    public async Task<AnalysisId> CreateAnalysisAsync(CancellationToken cancellationToken)
     {
         CreateAnalysisResponse response = await _analysisServiceClient
             .CreateAsync(new CreateAnalysisRequest(), cancellationToken: cancellationToken);
 
-        return new CheckingId(response.AnalysisId);
+        return new AnalysisId(response.AnalysisId);
     }
 
-    public async Task AddCheckingDataAsync(
-        CheckingId checkingId,
+    public async Task AddAnalysisDataAsync(
+        AnalysisId analysisId,
         IReadOnlyCollection<SubmissionData> data,
         CancellationToken cancellationToken)
     {
         var request = new AddAnalysisDataRequest
         {
-            AnalysisId = checkingId.ToString(),
+            AnalysisId = analysisId.ToString(),
             SubmissionData = { data.Select(MapToSubmissionData) },
         };
 
@@ -56,9 +57,9 @@ internal class BanMachineService : IBanMachineService
         }
     }
 
-    public async Task StartCheckingAsync(CheckingId checkingId, CancellationToken cancellationToken)
+    public async Task StartAnalysisAsync(AnalysisId analysisId, CancellationToken cancellationToken)
     {
-        var request = new StartAnalysisRequest { AnalysisId = checkingId.Value };
+        var request = new StartAnalysisRequest { AnalysisId = analysisId.Value };
 
         StartAnalysisResponse response = await _analysisServiceClient
             .StartAsync(request, cancellationToken: cancellationToken);
@@ -70,11 +71,11 @@ internal class BanMachineService : IBanMachineService
         }
     }
 
-    public async IAsyncEnumerable<BanMachinePairCheckingResult> GetCheckingResultDataAsync(
-        CheckingId checkingId,
+    public async IAsyncEnumerable<BanMachinePairAnalysisResult> GetAnalysisResultsDataAsync(
+        AnalysisId analysisId,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        var request = new GetAnalysisResultsDataRequest { AnalysisId = checkingId.ToString() };
+        var request = new GetAnalysisResultsDataRequest { AnalysisId = analysisId.ToString() };
 
         do
         {
@@ -99,7 +100,7 @@ internal class BanMachineService : IBanMachineService
                     data.SecondSubmissionId,
                     data.SimilarityScore);
 
-                yield return new BanMachinePairCheckingResult(
+                yield return new BanMachinePairAnalysisResult(
                     data.FirstSubmissionId.MapToGuid(),
                     data.SecondSubmissionId.MapToGuid(),
                     data.SimilarityScore);
@@ -108,13 +109,13 @@ internal class BanMachineService : IBanMachineService
         while (request.PageToken is not null);
     }
 
-    public async IAsyncEnumerable<SimilarCodeBlocks> GetCheckingResultCodeBlocksAsync(
+    public async IAsyncEnumerable<SimilarCodeBlocks> GetAnalysisResultCodeBlocksAsync(
         CheckingResultCodeBlocksRequest query,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var request = new GetAnalysisResultCodeBlocksRequest
         {
-            AnalysisId = query.CheckingId.ToString(),
+            AnalysisId = query.AnalysisId.ToString(),
             FirstSubmissionId = query.FistSubmissionId.ToString(),
             SecondSubmissionId = query.SecondSubmissionId.ToString(),
             MinimumSimilarityScore = query.MinimumSimilarityScore,

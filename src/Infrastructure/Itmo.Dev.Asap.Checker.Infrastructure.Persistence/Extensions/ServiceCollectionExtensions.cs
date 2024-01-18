@@ -20,7 +20,6 @@ public static class ServiceCollectionExtensions
         collection.AddSingleton<IDataSourcePlugin, MappingPlugin>();
 
         collection.AddScoped<ICheckingResultRepository, CheckingResultRepository>();
-        collection.AddScoped<ISubjectCourseDumpTaskRepository, SubjectCourseDumpTaskRepository>();
         collection.AddScoped<ISubmissionDataRepository, SubmissionDataRepository>();
 
         collection.AddScoped<IPersistenceContext, PersistenceContext>();

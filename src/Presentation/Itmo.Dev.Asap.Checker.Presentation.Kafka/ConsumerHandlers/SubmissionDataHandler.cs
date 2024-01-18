@@ -1,6 +1,6 @@
 using Itmo.Dev.Asap.Checker.Application.Contracts.Checking.Notifications;
 using Itmo.Dev.Asap.Checker.Application.Contracts.Submissions;
-using Itmo.Dev.Asap.Checker.Application.Models.Submissions;
+using Itmo.Dev.Asap.Checker.Application.Models;
 using Itmo.Dev.Asap.Checker.Presentation.Kafka.Mapping;
 using Itmo.Dev.Asap.Kafka;
 using Itmo.Dev.Platform.Events;
@@ -27,14 +27,14 @@ internal class SubmissionDataHandler : IKafkaMessageHandler<SubmissionDataKey, S
     {
         var finishedEvents = new List<SubjectCourseDumpFinishedEvent>();
 
-        SubmissionData[] data = FilterAddedData(messages, finishedEvents).ToArray();
+        SubmissionDataAddedEvent.Data[] data = FilterAddedData(messages, finishedEvents).ToArray();
         var evt = new SubmissionDataAddedEvent(data);
 
         await _eventPublisher.PublishAsync(evt, cancellationToken);
         await _eventPublisher.PublishAsync(finishedEvents, cancellationToken);
     }
 
-    private IEnumerable<SubmissionData> FilterAddedData(
+    private IEnumerable<SubmissionDataAddedEvent.Data> FilterAddedData(
         IEnumerable<ConsumerKafkaMessage<SubmissionDataKey, SubmissionDataValue>> messages,
         ICollection<SubjectCourseDumpFinishedEvent> finishedEvents)
     {
@@ -46,7 +46,7 @@ internal class SubmissionDataHandler : IKafkaMessageHandler<SubmissionDataKey, S
             {
                 foreach (ConsumerKafkaMessage<SubmissionDataKey, SubmissionDataValue> message in grouping)
                 {
-                    var evt = new SubjectCourseDumpFinishedEvent(message.Key.TaskId);
+                    var evt = new SubjectCourseDumpFinishedEvent(new DumpTaskId(message.Key.TaskId));
                     finishedEvents.Add(evt);
                 }
             }
@@ -54,11 +54,11 @@ internal class SubmissionDataHandler : IKafkaMessageHandler<SubmissionDataKey, S
             {
                 foreach (ConsumerKafkaMessage<SubmissionDataKey, SubmissionDataValue> message in grouping)
                 {
-                    yield return new SubmissionData(
+                    yield return new SubmissionDataAddedEvent.Data(
                         message.Value.SubmissionDataAdded.SubmissionId.MapToGuid(),
                         message.Value.SubmissionDataAdded.UserId.MapToGuid(),
                         message.Value.SubmissionDataAdded.AssignmentId.MapToGuid(),
-                        message.Key.TaskId,
+                        new DumpTaskId(message.Key.TaskId),
                         message.Value.SubmissionDataAdded.FileLink);
                 }
             }

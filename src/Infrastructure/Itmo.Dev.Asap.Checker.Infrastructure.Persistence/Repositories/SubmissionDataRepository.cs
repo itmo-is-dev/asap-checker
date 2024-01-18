@@ -1,5 +1,6 @@
 using Itmo.Dev.Asap.Checker.Application.Abstractions.Persistence.Queries;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.Persistence.Repositories;
+using Itmo.Dev.Asap.Checker.Application.Models;
 using Itmo.Dev.Asap.Checker.Application.Models.Submissions;
 using Itmo.Dev.Platform.Postgres.Connection;
 using Itmo.Dev.Platform.Postgres.Extensions;
@@ -39,7 +40,7 @@ public sealed class SubmissionDataRepository : ISubmissionDataRepository
         NpgsqlConnection connection = await _connectionProvider.GetConnectionAsync(cancellationToken);
 
         await using NpgsqlCommand command = new NpgsqlCommand(sql, connection)
-            .AddParameter("task_ids", query.TaskIds)
+            .AddParameter("task_ids", query.CheckingIds.Select(x => x.Value).ToArray())
             .AddParameter("submission_ids", query.SubmissionIds)
             .AddParameter("should_ignore_cursor", query.SubmissionIdCursor is null)
             .AddParameter("submission_id_cursor", query.SubmissionIdCursor ?? Guid.Empty)
@@ -59,7 +60,7 @@ public sealed class SubmissionDataRepository : ISubmissionDataRepository
                 SubmissionId: reader.GetGuid(submissionId),
                 UserId: reader.GetGuid(userId),
                 AssignmentId: reader.GetGuid(assignmentId),
-                TaskId: reader.GetInt64(taskId),
+                CheckingId: new CheckingId(reader.GetInt64(taskId)),
                 FileLink: reader.GetString(fileLink));
         }
     }
@@ -80,7 +81,7 @@ public sealed class SubmissionDataRepository : ISubmissionDataRepository
             .AddParameter("submission_ids", submissionData.Select(x => x.SubmissionId).ToArray())
             .AddParameter("user_ids", submissionData.Select(x => x.UserId).ToArray())
             .AddParameter("assignment_ids", submissionData.Select(x => x.AssignmentId).ToArray())
-            .AddParameter("task_ids", submissionData.Select(x => x.TaskId).ToArray())
+            .AddParameter("task_ids", submissionData.Select(x => x.CheckingId.Value).ToArray())
             .AddParameter("file_links", submissionData.Select(x => x.FileLink).ToArray());
 
         await command.ExecuteNonQueryAsync(cancellationToken);

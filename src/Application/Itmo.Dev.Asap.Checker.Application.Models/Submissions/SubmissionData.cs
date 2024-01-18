@@ -4,5 +4,5 @@ public record SubmissionData(
     Guid SubmissionId,
     Guid UserId,
     Guid AssignmentId,
-    long TaskId,
+    CheckingId CheckingId,
     string FileLink);

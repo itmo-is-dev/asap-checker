@@ -1,4 +1,3 @@
-using Itmo.Dev.Asap.Checker.Application.Abstractions.BanMachine.Models;
 using Itmo.Dev.Asap.Checker.Application.Contracts.Checking.Notifications;
 using Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking;
 using Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.States;
@@ -11,15 +10,15 @@ using Microsoft.Extensions.Logging;
 
 namespace Itmo.Dev.Asap.Checker.Application.SubjectCourses;
 
-internal class CheckingCompletedHandler : IEventHandler<CheckingCompletedEvent>
+internal class AnalysisCompletedHandler : IEventHandler<AnalysisCompletedEvent>
 {
     private readonly IBackgroundTaskRepository _backgroundTaskRepository;
-    private readonly ILogger<CheckingCompletedHandler> _logger;
+    private readonly ILogger<AnalysisCompletedHandler> _logger;
     private readonly IBackgroundTaskRunner _backgroundTaskRunner;
 
-    public CheckingCompletedHandler(
+    public AnalysisCompletedHandler(
         IBackgroundTaskRepository backgroundTaskRepository,
-        ILogger<CheckingCompletedHandler> logger,
+        ILogger<AnalysisCompletedHandler> logger,
         IBackgroundTaskRunner backgroundTaskRunner)
     {
         _backgroundTaskRepository = backgroundTaskRepository;
@@ -27,11 +26,11 @@ internal class CheckingCompletedHandler : IEventHandler<CheckingCompletedEvent>
         _backgroundTaskRunner = backgroundTaskRunner;
     }
 
-    public async ValueTask HandleAsync(CheckingCompletedEvent evt, CancellationToken cancellationToken)
+    public async ValueTask HandleAsync(AnalysisCompletedEvent evt, CancellationToken cancellationToken)
     {
         var executionMetadata = new CheckingTaskExecutionMetadata
         {
-            State = new LoadingResultsState(new CheckingId(evt.CheckingId)),
+            State = new WaitingAnalysisState(evt.AnalysisId),
         };
 
         var checkingTaskQuery = BackgroundTaskQuery.Build(builder => builder
@@ -46,8 +45,8 @@ internal class CheckingCompletedHandler : IEventHandler<CheckingCompletedEvent>
         if (checkingTask is null)
         {
             _logger.LogCritical(
-                "Checking task for ban machine checking id = {CheckingId} not found",
-                evt.CheckingId);
+                "Checking task for ban machine analysis id = {AnalysisId} not found",
+                evt.AnalysisId);
 
             return;
         }

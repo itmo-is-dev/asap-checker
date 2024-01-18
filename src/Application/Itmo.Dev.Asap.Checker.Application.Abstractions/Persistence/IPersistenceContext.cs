@@ -6,7 +6,5 @@ public interface IPersistenceContext
 {
     ICheckingResultRepository CheckingResults { get; }
 
-    ISubjectCourseDumpTaskRepository SubjectCourseDumpTasks { get; }
-
     ISubmissionDataRepository SubmissionData { get; }
 }

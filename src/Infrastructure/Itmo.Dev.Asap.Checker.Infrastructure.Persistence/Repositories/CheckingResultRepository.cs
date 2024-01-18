@@ -1,5 +1,6 @@
 using Itmo.Dev.Asap.Checker.Application.Abstractions.Persistence.Queries;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.Persistence.Repositories;
+using Itmo.Dev.Asap.Checker.Application.Models;
 using Itmo.Dev.Asap.Checker.Application.Models.CheckingResults;
 using Itmo.Dev.Platform.Postgres.Connection;
 using Itmo.Dev.Platform.Postgres.Extensions;
@@ -47,7 +48,7 @@ public class CheckingResultRepository : ICheckingResultRepository
         NpgsqlConnection connection = await _connectionProvider.GetConnectionAsync(cancellationToken);
 
         await using NpgsqlCommand command = new NpgsqlCommand(sql, connection)
-            .AddParameter("task_id", query.TaskId)
+            .AddParameter("task_id", query.CheckingId.Value)
             .AddParameter("assignment_ids", query.AssignmentIds)
             .AddParameter("group_ids", query.GroupIds)
             .AddParameter("should_ignore_first_filter", query.FirstSubmissionId is null)
@@ -104,7 +105,7 @@ public class CheckingResultRepository : ICheckingResultRepository
         NpgsqlConnection connection = await _connectionProvider.GetConnectionAsync(cancellationToken);
 
         await using NpgsqlCommand command = new NpgsqlCommand(sql, connection)
-            .AddParameter("task_id", query.TaskId)
+            .AddParameter("task_id", query.CheckingId.Value)
             .AddParameter("first_submission_id", query.FirstSubmissionId)
             .AddParameter("second_submission_id", query.SecondSubmissionId)
             .AddParameter("cursor", query.Cursor)
@@ -122,7 +123,7 @@ public class CheckingResultRepository : ICheckingResultRepository
     }
 
     public async Task AddCheckingResultAsync(
-        long taskId,
+        CheckingId checkingId,
         SubmissionPairCheckingResult result,
         CancellationToken cancellationToken)
     {
@@ -150,7 +151,7 @@ public class CheckingResultRepository : ICheckingResultRepository
         NpgsqlConnection connection = await _connectionProvider.GetConnectionAsync(cancellationToken);
 
         await using NpgsqlCommand command = new NpgsqlCommand(sql, connection)
-            .AddParameter("task_id", taskId)
+            .AddParameter("task_id", checkingId.Value)
             .AddParameter("assignment_id", result.AssignmentId)
             .AddParameter("first_submission_id", result.FirstSubmission.Id)
             .AddParameter("first_user_id", result.FirstSubmission.UserId)
@@ -164,7 +165,7 @@ public class CheckingResultRepository : ICheckingResultRepository
     }
 
     public async Task AddCheckingResultCodeBlocksAsync(
-        long taskId,
+        CheckingId checkingId,
         Guid firstSubmissionId,
         Guid secondSubmissionId,
         IReadOnlyCollection<SimilarCodeBlocks> codeBlocks,
@@ -184,7 +185,7 @@ public class CheckingResultRepository : ICheckingResultRepository
         NpgsqlConnection connection = await _connectionProvider.GetConnectionAsync(cancellationToken);
 
         await using NpgsqlCommand command = new NpgsqlCommand(sql, connection)
-            .AddParameter("task_id", taskId)
+            .AddParameter("task_id", checkingId.Value)
             .AddParameter("fist_submission_id", firstSubmissionId)
             .AddParameter("second_submission_id", secondSubmissionId)
             .AddParameter("first_code_blocks", codeBlocks.Select(x => x.First).ToArray())

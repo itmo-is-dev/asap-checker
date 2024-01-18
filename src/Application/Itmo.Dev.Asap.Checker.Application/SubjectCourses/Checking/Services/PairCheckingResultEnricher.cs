@@ -3,6 +3,7 @@ using Itmo.Dev.Asap.Checker.Application.Abstractions.Core;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.Core.Models;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.Persistence;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.Persistence.Queries;
+using Itmo.Dev.Asap.Checker.Application.Models;
 using Itmo.Dev.Asap.Checker.Application.Models.CheckingResults;
 using Itmo.Dev.Asap.Checker.Application.Models.Submissions;
 using Microsoft.Extensions.Logging;
@@ -26,12 +27,12 @@ internal class PairCheckingResultEnricher
     }
 
     public async Task<SubmissionPairCheckingResult> EnrichAsync(
-        long taskId,
-        BanMachinePairCheckingResult result,
+        CheckingId checkingId,
+        BanMachinePairAnalysisResult result,
         CancellationToken cancellationToken)
     {
         var query = SubmissionDataQuery.Build(builder => builder
-            .WithTaskId(taskId)
+            .WithCheckingId(checkingId)
             .WithSubmissionId(result.FirstSubmissionId)
             .WithSubmissionId(result.SecondSubmissionId)
             .WithPageSize(2));

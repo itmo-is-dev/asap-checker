@@ -3,4 +3,4 @@ using Itmo.Dev.Platform.Events;
 
 namespace Itmo.Dev.Asap.Checker.Application.Contracts.Checking.Notifications;
 
-public record SubjectCourseDumpFinishedEvent(DumpTaskId DumpTaskId) : IEvent;
+public record AnalysisCompletedEvent(AnalysisId AnalysisId) : IEvent;

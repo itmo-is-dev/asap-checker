@@ -1,5 +1,6 @@
 using Itmo.Dev.Asap.Checker.Application.Abstractions.Github;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.Github.Results;
+using Itmo.Dev.Asap.Checker.Application.Models;
 using Itmo.Dev.Asap.Github.SubjectCourses;
 using System.Diagnostics;
 using static Itmo.Dev.Asap.Github.SubjectCourses.StartContentDumpResponse;
@@ -28,7 +29,7 @@ public class SubjectCourseService : IGithubSubjectCourseService
         return response.ResultCase switch
         {
             ResultOneofCase.Success
-                => new StartContentDumpResult.Success(response.Success.TaskId),
+                => new StartContentDumpResult.Success(new DumpTaskId(response.Success.TaskId)),
 
             ResultOneofCase.AlreadyRunning => new StartContentDumpResult.AlreadyInProgress(),
 

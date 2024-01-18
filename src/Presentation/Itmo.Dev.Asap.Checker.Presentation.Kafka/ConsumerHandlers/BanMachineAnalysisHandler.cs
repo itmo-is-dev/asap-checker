@@ -1,4 +1,5 @@
 using Itmo.Dev.Asap.Checker.Application.Contracts.Checking.Notifications;
+using Itmo.Dev.Asap.Checker.Application.Models;
 using Itmo.Dev.Asap.Kafka;
 using Itmo.Dev.Platform.Events;
 using Itmo.Dev.Platform.Kafka.Consumer;
@@ -24,7 +25,7 @@ public class BanMachineAnalysisHandler : IKafkaMessageHandler<BanMachineAnalysis
             if (message.Value.EventCase is not BanMachineAnalysisValue.EventOneofCase.AnalysisCompleted)
                 continue;
 
-            var evt = new CheckingCompletedEvent(message.Key.AnalysisKey);
+            var evt = new AnalysisCompletedEvent(new AnalysisId(message.Key.AnalysisKey));
             await _eventPublisher.PublishAsync(evt, cancellationToken);
         }
     }

@@ -1,7 +1,9 @@
+using Itmo.Dev.Asap.Checker.Application.Models;
+
 namespace Itmo.Dev.Asap.Checker.Application.Abstractions.BanMachine.Models;
 
 public record CheckingResultCodeBlocksRequest(
-    CheckingId CheckingId,
+    AnalysisId AnalysisId,
     Guid FistSubmissionId,
     Guid SecondSubmissionId,
     double MinimumSimilarityScore,

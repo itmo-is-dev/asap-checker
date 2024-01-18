@@ -2,6 +2,7 @@ using Itmo.Dev.Asap.Checker.Application.Abstractions.Core;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.Persistence;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.Persistence.Queries;
 using Itmo.Dev.Asap.Checker.Application.Contracts.Checking;
+using Itmo.Dev.Asap.Checker.Application.Models;
 using Itmo.Dev.Asap.Checker.Application.Models.CheckingResults;
 using Itmo.Dev.Asap.Checker.Application.Models.SubjectCourses;
 using Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking;
@@ -73,7 +74,7 @@ internal class CheckingService : ICheckingService
             .SingleAsync(cancellationToken);
 
         return new StartChecking.Response.Success(new SubjectCourseCheckingTask(
-            backgroundTaskId.Value,
+            new CheckingId(backgroundTaskId.Value),
             backgroundTask.CreatedAt,
             backgroundTask.State is BackgroundTaskState.Completed));
     }
@@ -98,7 +99,7 @@ internal class CheckingService : ICheckingService
         SubjectCourseCheckingTask[] tasks = await _backgroundTaskRepository
             .QueryAsync(query, cancellationToken)
             .Select(x => new SubjectCourseCheckingTask(
-                x.Id.Value,
+                new CheckingId(x.Id.Value),
                 x.CreatedAt,
                 x.State is BackgroundTaskState.Completed))
             .ToArrayAsync(cancellationToken);
@@ -115,7 +116,7 @@ internal class CheckingService : ICheckingService
         CancellationToken cancellationToken)
     {
         var query = CheckingResultDataQuery.Build(builder => builder
-            .WithTaskId(request.TaskId)
+            .WithCheckingId(new CheckingId(request.TaskId))
             .WithAssignmentIds(request.AssignmentIds)
             .WithGroupIds(request.GroupIds)
             .WithPageSize(request.PageSize)
@@ -138,7 +139,7 @@ internal class CheckingService : ICheckingService
         CancellationToken cancellationToken)
     {
         var query = CheckingResultCodeBlocksQuery.Build(builder => builder
-            .WithTaskId(request.TaskId)
+            .WithCheckingId(new CheckingId(request.TaskId))
             .WithFirstSubmissionId(request.FirstSubmissionId)
             .WithSecondSubmissionId(request.SecondSubmissionId)
             .WithPageSize(request.PageSize)

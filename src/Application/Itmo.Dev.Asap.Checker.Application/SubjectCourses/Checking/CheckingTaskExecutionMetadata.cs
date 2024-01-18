@@ -5,7 +5,5 @@ namespace Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking;
 
 public class CheckingTaskExecutionMetadata : IBackgroundTaskExecutionMetadata
 {
-    public CheckingTaskState? PreviousState { get; set; }
-
     public CheckingTaskState? State { get; set; }
 }

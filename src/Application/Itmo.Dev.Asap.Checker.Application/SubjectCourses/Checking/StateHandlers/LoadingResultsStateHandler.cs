@@ -1,6 +1,7 @@
 using Itmo.Dev.Asap.Checker.Application.Abstractions.BanMachine.Models;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.BanMachine.Services;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.Persistence.Repositories;
+using Itmo.Dev.Asap.Checker.Application.Models;
 using Itmo.Dev.Asap.Checker.Application.Models.CheckingResults;
 using Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.Models;
 using Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.Services;
@@ -15,9 +16,8 @@ using System.Data;
 
 namespace Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.StateHandlers;
 
-internal class LoadingResultsStateHandler : ICheckingTaskStateHandler
+internal class LoadingResultsStateHandler : ICheckingTaskStateHandler<LoadingResultsState>
 {
-    private readonly LoadingResultsState _state;
     private readonly IBanMachineService _banMachineService;
     private readonly IPostgresTransactionProvider _transactionProvider;
     private readonly CheckingServiceOptions _options;
@@ -25,14 +25,12 @@ internal class LoadingResultsStateHandler : ICheckingTaskStateHandler
     private readonly PairCheckingResultEnricher _resultEnricher;
 
     public LoadingResultsStateHandler(
-        LoadingResultsState state,
         IBanMachineService banMachineService,
         IPostgresTransactionProvider transactionProvider,
         IOptions<CheckingServiceOptions> options,
         ICheckingResultRepository checkingResultRepository,
         PairCheckingResultEnricher resultEnricher)
     {
-        _state = state;
         _banMachineService = banMachineService;
         _transactionProvider = transactionProvider;
         _checkingResultRepository = checkingResultRepository;
@@ -40,52 +38,23 @@ internal class LoadingResultsStateHandler : ICheckingTaskStateHandler
         _options = options.Value;
     }
 
-    public async Task<CheckingTaskStateExecutionResult> HandleAsync(
+    public async ValueTask<CheckingTaskStateExecutionResult> HandleAsync(
+        LoadingResultsState state,
         CheckingTaskStateHandlerContext context,
         CancellationToken cancellationToken)
     {
-        IAsyncEnumerable<BanMachinePairCheckingResult> resultData = _banMachineService
-            .GetCheckingResultDataAsync(_state.CheckingId, cancellationToken);
+        IAsyncEnumerable<BanMachinePairAnalysisResult> resultData = _banMachineService
+            .GetAnalysisResultsDataAsync(state.AnalysisId, cancellationToken);
 
         await using NpgsqlTransaction transaction = await _transactionProvider
             .CreateTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
 
-        await foreach (BanMachinePairCheckingResult result in resultData)
+        await foreach (BanMachinePairAnalysisResult result in resultData)
         {
             if (result.SimilarityScore < _options.MinimumSubmissionSimilarityScore)
                 continue;
 
-            SubmissionPairCheckingResult checkingResult = await _resultEnricher
-                .EnrichAsync(context.BackgroundTaskId.Value, result, cancellationToken);
-
-            await _checkingResultRepository
-                .AddCheckingResultAsync(context.BackgroundTaskId.Value, checkingResult, cancellationToken);
-
-            var codeBlocksQuery = new CheckingResultCodeBlocksRequest(
-                _state.CheckingId,
-                result.FirstSubmissionId,
-                result.SecondSubmissionId,
-                _options.MinimumCodeBlocksSimilarityScore,
-                0);
-
-            SimilarCodeBlocks[] codeBlocks;
-
-            do
-            {
-                codeBlocks = await _banMachineService
-                    .GetCheckingResultCodeBlocksAsync(codeBlocksQuery, cancellationToken)
-                    .ToArrayAsync(cancellationToken);
-
-                await _checkingResultRepository.AddCheckingResultCodeBlocksAsync(
-                    context.BackgroundTaskId.Value,
-                    result.FirstSubmissionId,
-                    result.SecondSubmissionId,
-                    codeBlocks,
-                    cancellationToken);
-
-                codeBlocksQuery = codeBlocksQuery with { Cursor = codeBlocksQuery.Cursor + codeBlocks.Length };
-            }
-            while (codeBlocks is not []);
+            await SaveResultAsync(state, context, result, cancellationToken);
         }
 
         await transaction.CommitAsync(cancellationToken);
@@ -93,6 +62,47 @@ internal class LoadingResultsStateHandler : ICheckingTaskStateHandler
         var success = new BackgroundTaskExecutionResult<EmptyExecutionResult, CheckingTaskError>.Success(
             EmptyExecutionResult.Value);
 
-        return new CheckingTaskStateExecutionResult(new CompletedState(), success);
+        return new CheckingTaskStateExecutionResult.FinishedWithResult(new CompletedState(), success);
+    }
+
+    private async Task SaveResultAsync(
+        LoadingResultsState state,
+        CheckingTaskStateHandlerContext context,
+        BanMachinePairAnalysisResult result,
+        CancellationToken cancellationToken)
+    {
+        var checkingId = new CheckingId(context.BackgroundTaskId.Value);
+
+        SubmissionPairCheckingResult checkingResult = await _resultEnricher
+            .EnrichAsync(checkingId, result, cancellationToken);
+
+        await _checkingResultRepository
+            .AddCheckingResultAsync(checkingId, checkingResult, cancellationToken);
+
+        var codeBlocksQuery = new CheckingResultCodeBlocksRequest(
+            state.AnalysisId,
+            result.FirstSubmissionId,
+            result.SecondSubmissionId,
+            _options.MinimumCodeBlocksSimilarityScore,
+            0);
+
+        SimilarCodeBlocks[] codeBlocks;
+
+        do
+        {
+            codeBlocks = await _banMachineService
+                .GetAnalysisResultCodeBlocksAsync(codeBlocksQuery, cancellationToken)
+                .ToArrayAsync(cancellationToken);
+
+            await _checkingResultRepository.AddCheckingResultCodeBlocksAsync(
+                checkingId,
+                result.FirstSubmissionId,
+                result.SecondSubmissionId,
+                codeBlocks,
+                cancellationToken);
+
+            codeBlocksQuery = codeBlocksQuery with { Cursor = codeBlocksQuery.Cursor + codeBlocks.Length };
+        }
+        while (codeBlocks is not []);
     }
 }

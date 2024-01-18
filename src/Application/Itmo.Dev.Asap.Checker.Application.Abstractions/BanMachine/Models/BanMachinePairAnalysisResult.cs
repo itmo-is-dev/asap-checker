@@ -1,6 +1,6 @@
 namespace Itmo.Dev.Asap.Checker.Application.Abstractions.BanMachine.Models;
 
-public record BanMachinePairCheckingResult(
+public record BanMachinePairAnalysisResult(
     Guid FirstSubmissionId,
     Guid SecondSubmissionId,
     double SimilarityScore);
