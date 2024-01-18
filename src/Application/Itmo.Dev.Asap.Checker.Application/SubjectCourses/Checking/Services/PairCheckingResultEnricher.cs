@@ -5,6 +5,7 @@ using Itmo.Dev.Asap.Checker.Application.Abstractions.Persistence;
 using Itmo.Dev.Asap.Checker.Application.Abstractions.Persistence.Queries;
 using Itmo.Dev.Asap.Checker.Application.Models.CheckingResults;
 using Itmo.Dev.Asap.Checker.Application.Models.Submissions;
+using Microsoft.Extensions.Logging;
 
 namespace Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.Services;
 
@@ -12,11 +13,16 @@ internal class PairCheckingResultEnricher
 {
     private readonly ICoreStudentService _studentService;
     private readonly IPersistenceContext _context;
+    private readonly ILogger<PairCheckingResultEnricher> _logger;
 
-    public PairCheckingResultEnricher(ICoreStudentService studentService, IPersistenceContext context)
+    public PairCheckingResultEnricher(
+        ICoreStudentService studentService,
+        IPersistenceContext context,
+        ILogger<PairCheckingResultEnricher> logger)
     {
         _studentService = studentService;
         _context = context;
+        _logger = logger;
     }
 
     public async Task<SubmissionPairCheckingResult> EnrichAsync(
@@ -33,6 +39,10 @@ internal class PairCheckingResultEnricher
         Dictionary<Guid, SubmissionData> data = await _context.SubmissionData
             .QueryAsync(query, cancellationToken)
             .ToDictionaryAsync(x => x.SubmissionId, cancellationToken);
+
+        _logger.LogTrace(
+            "Received submission data = {Data}",
+            string.Join(", ", data.Select(x => x.Value)));
 
         Dictionary<Guid, Student> students = await _studentService
             .GetByIdsAsync(data.Select(x => x.Value.UserId), cancellationToken)
