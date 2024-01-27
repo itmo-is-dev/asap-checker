@@ -8,7 +8,6 @@ using Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.Services;
 using Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.States;
 using Itmo.Dev.Asap.Checker.Application.SubjectCourses.Options;
 using Itmo.Dev.Platform.BackgroundTasks.Tasks;
-using Itmo.Dev.Platform.BackgroundTasks.Tasks.Results;
 using Itmo.Dev.Platform.Postgres.Transactions;
 using Microsoft.Extensions.Options;
 using Npgsql;
@@ -59,10 +58,9 @@ internal class LoadingResultsStateHandler : ICheckingTaskStateHandler<LoadingRes
 
         await transaction.CommitAsync(cancellationToken);
 
-        var success = new BackgroundTaskExecutionResult<EmptyExecutionResult, CheckingTaskError>.Success(
-            EmptyExecutionResult.Value);
-
-        return new CheckingTaskStateExecutionResult.FinishedWithResult(new CompletedState(), success);
+        return new CheckingTaskStateExecutionResult.FinishedWithResult(
+            new CompletedState(),
+            BackgroundTaskExecutionResult.Success.WithEmptyResult().ForError<CheckingTaskError>());
     }
 
     private async Task SaveResultAsync(

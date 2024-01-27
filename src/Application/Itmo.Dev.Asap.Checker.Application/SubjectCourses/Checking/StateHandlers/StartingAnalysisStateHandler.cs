@@ -7,7 +7,6 @@ using Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.Models;
 using Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.States;
 using Itmo.Dev.Asap.Checker.Application.SubjectCourses.Options;
 using Itmo.Dev.Platform.BackgroundTasks.Tasks;
-using Itmo.Dev.Platform.BackgroundTasks.Tasks.Results;
 using Microsoft.Extensions.Options;
 
 namespace Itmo.Dev.Asap.Checker.Application.SubjectCourses.Checking.StateHandlers;
@@ -60,6 +59,6 @@ internal class StartingAnalysisStateHandler : ICheckingTaskStateHandler<Starting
 
         return new CheckingTaskStateExecutionResult.FinishedWithResult(
             new WaitingAnalysisState(analysisId),
-            new BackgroundTaskExecutionResult<EmptyExecutionResult, CheckingTaskError>.Suspended());
+            BackgroundTaskExecutionResult.Suspended.ForEmptyResult().ForError<CheckingTaskError>());
     }
 }

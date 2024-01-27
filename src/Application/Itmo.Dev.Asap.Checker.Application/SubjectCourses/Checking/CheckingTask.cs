@@ -52,8 +52,10 @@ public class CheckingTask : IBackgroundTask<
                 return finishedWithResult.Result;
             }
 
-            return new BackgroundTaskExecutionResult<EmptyExecutionResult, CheckingTaskError>.Failure(
-                new CheckingTaskError($"Invalid handler result = {result}"));
+            return BackgroundTaskExecutionResult
+                .Failure
+                .ForEmptyResult()
+                .WithError(new CheckingTaskError($"Invalid handler result = {result}"));
         }
         while (true);
     }
