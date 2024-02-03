@@ -17,24 +17,26 @@ public static class ServiceCollectionExtensions
 
         string group = Assembly.GetExecutingAssembly().GetName().Name ?? string.Empty;
 
-        collection.AddKafka(builder => builder
-            .ConfigureOptions(b => b.BindConfiguration("Presentation:Kafka"))
-            .AddConsumer<SubmissionDataKey, SubmissionDataValue>(selector => selector
-                .HandleWith<SubmissionDataHandler>()
-                .DeserializeKeyWithProto()
-                .DeserializeValueWithProto()
-                .UseNamedOptionsConfiguration(
-                    "SubmissionData",
+        collection.AddPlatformKafka(builder => builder
+            .ConfigureOptions(configuration.GetSection("Presentation:Kafka"))
+            .AddConsumer(b => b
+                .WithKey<SubmissionDataKey>()
+                .WithValue<SubmissionDataValue>()
+                .WithConfiguration(
                     configuration.GetSection($"{consumerKey}:SubmissionData"),
-                    c => c.WithGroup(group)))
-            .AddConsumer<BanMachineAnalysisKey, BanMachineAnalysisValue>(selector => selector
-                .HandleWith<BanMachineAnalysisHandler>()
+                    c => c.WithGroup(group))
                 .DeserializeKeyWithProto()
                 .DeserializeValueWithProto()
-                .UseNamedOptionsConfiguration(
-                    "BanMachineAnalysis",
+                .HandleWith<SubmissionDataHandler>())
+            .AddConsumer(b => b
+                .WithKey<BanMachineAnalysisKey>()
+                .WithValue<BanMachineAnalysisValue>()
+                .WithConfiguration(
                     configuration.GetSection($"{consumerKey}:BanMachineAnalysis"),
-                    c => c.WithGroup(group))));
+                    c => c.WithGroup(group))
+                .DeserializeKeyWithProto()
+                .DeserializeValueWithProto()
+                .HandleWith<BanMachineAnalysisHandler>()));
 
         return collection;
     }

@@ -5,12 +5,11 @@ using Itmo.Dev.Asap.Checker.Presentation.Kafka.Mapping;
 using Itmo.Dev.Asap.Kafka;
 using Itmo.Dev.Platform.Events;
 using Itmo.Dev.Platform.Kafka.Consumer;
-using Itmo.Dev.Platform.Kafka.Consumer.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Itmo.Dev.Asap.Checker.Presentation.Kafka.ConsumerHandlers;
 
-internal class SubmissionDataHandler : IKafkaMessageHandler<SubmissionDataKey, SubmissionDataValue>
+internal class SubmissionDataHandler : IKafkaConsumerHandler<SubmissionDataKey, SubmissionDataValue>
 {
     private readonly IEventPublisher _eventPublisher;
     private readonly ILogger<SubmissionDataHandler> _logger;
@@ -22,7 +21,7 @@ internal class SubmissionDataHandler : IKafkaMessageHandler<SubmissionDataKey, S
     }
 
     public async ValueTask HandleAsync(
-        IEnumerable<ConsumerKafkaMessage<SubmissionDataKey, SubmissionDataValue>> messages,
+        IEnumerable<IKafkaConsumerMessage<SubmissionDataKey, SubmissionDataValue>> messages,
         CancellationToken cancellationToken)
     {
         var finishedEvents = new List<SubjectCourseDumpFinishedEvent>();
@@ -35,7 +34,7 @@ internal class SubmissionDataHandler : IKafkaMessageHandler<SubmissionDataKey, S
     }
 
     private IEnumerable<SubmissionDataAddedEvent.Data> FilterAddedData(
-        IEnumerable<ConsumerKafkaMessage<SubmissionDataKey, SubmissionDataValue>> messages,
+        IEnumerable<IKafkaConsumerMessage<SubmissionDataKey, SubmissionDataValue>> messages,
         ICollection<SubjectCourseDumpFinishedEvent> finishedEvents)
     {
 #pragma warning disable IDE0008
@@ -44,7 +43,7 @@ internal class SubmissionDataHandler : IKafkaMessageHandler<SubmissionDataKey, S
         {
             if (grouping.Key is SubmissionDataValue.EventOneofCase.SubmissionDataCollectionFinished)
             {
-                foreach (ConsumerKafkaMessage<SubmissionDataKey, SubmissionDataValue> message in grouping)
+                foreach (IKafkaConsumerMessage<SubmissionDataKey, SubmissionDataValue> message in grouping)
                 {
                     var evt = new SubjectCourseDumpFinishedEvent(new DumpTaskId(message.Key.TaskId));
                     finishedEvents.Add(evt);
@@ -52,7 +51,7 @@ internal class SubmissionDataHandler : IKafkaMessageHandler<SubmissionDataKey, S
             }
             else if (grouping.Key is SubmissionDataValue.EventOneofCase.SubmissionDataAdded)
             {
-                foreach (ConsumerKafkaMessage<SubmissionDataKey, SubmissionDataValue> message in grouping)
+                foreach (IKafkaConsumerMessage<SubmissionDataKey, SubmissionDataValue> message in grouping)
                 {
                     yield return new SubmissionDataAddedEvent.Data(
                         message.Value.SubmissionDataAdded.SubmissionId.MapToGuid(),
