@@ -35,8 +35,7 @@ internal class AnalysisCompletedHandler : IEventHandler<AnalysisCompletedEvent>
         var checkingTaskQuery = BackgroundTaskQuery.Build(builder => builder
             .WithName(CheckingTask.Name)
             .WithExecutionMetadata(executionMetadata)
-            .WithState(BackgroundTaskState.Suspended)
-            .WithPageSize(1));
+            .WithState(BackgroundTaskState.Suspended));
 
         BackgroundTask? checkingTask = await _backgroundTaskRepository
             .QueryAsync(checkingTaskQuery, cancellationToken)
