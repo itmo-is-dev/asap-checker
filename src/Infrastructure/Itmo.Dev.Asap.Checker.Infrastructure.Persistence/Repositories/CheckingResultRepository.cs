@@ -186,8 +186,8 @@ public class CheckingResultRepository : ICheckingResultRepository
         select  :task_id, 
                 :fist_submission_id, 
                 :second_submission_id,
-                json_populate_recordset(null::code_block, s.first_code_blocks::json),
-                json_populate_recordset(null::code_block, s.second_code_blocks::json),
+                array(select x from json_populate_recordset(null::code_block, s.first_code_blocks::json) x),
+                array(select x from json_populate_recordset(null::code_block, s.second_code_blocks::json) x),
                 s.similarity_scores 
         from unnest(:first_code_blocks, :second_code_blocks, :similarity_scores) as s(first_code_blocks, second_code_blocks, similarity_scores);
         """;
