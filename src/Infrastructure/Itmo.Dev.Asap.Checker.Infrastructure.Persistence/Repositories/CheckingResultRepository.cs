@@ -4,6 +4,7 @@ using Itmo.Dev.Asap.Checker.Application.Models;
 using Itmo.Dev.Asap.Checker.Application.Models.CheckingResults;
 using Itmo.Dev.Platform.Postgres.Connection;
 using Itmo.Dev.Platform.Postgres.Extensions;
+using Newtonsoft.Json;
 using Npgsql;
 using System.Runtime.CompilerServices;
 
@@ -12,10 +13,14 @@ namespace Itmo.Dev.Asap.Checker.Infrastructure.Persistence.Repositories;
 public class CheckingResultRepository : ICheckingResultRepository
 {
     private readonly IPostgresConnectionProvider _connectionProvider;
+    private readonly JsonSerializerSettings _serializerSettings;
 
-    public CheckingResultRepository(IPostgresConnectionProvider connectionProvider)
+    public CheckingResultRepository(
+        IPostgresConnectionProvider connectionProvider,
+        JsonSerializerSettings serializerSettings)
     {
         _connectionProvider = connectionProvider;
+        _serializerSettings = serializerSettings;
     }
 
     public async IAsyncEnumerable<SubmissionPairCheckingResult> QueryDataAsync(
@@ -116,8 +121,8 @@ public class CheckingResultRepository : ICheckingResultRepository
         while (await reader.ReadAsync(cancellationToken))
         {
             yield return new SimilarCodeBlocks(
-                First: reader.GetFieldValue<CodeBlock>(0),
-                Second: reader.GetFieldValue<CodeBlock>(1),
+                First: reader.GetFieldValue<CodeBlock[]>(0),
+                Second: reader.GetFieldValue<CodeBlock[]>(1),
                 SimilarityScore: reader.GetDouble(2));
         }
     }
@@ -178,8 +183,13 @@ public class CheckingResultRepository : ICheckingResultRepository
                                                 checking_result_code_block_first,
                                                 checking_result_code_block_second,
                                                 checking_result_code_block_similarity_score)
-        select :task_id, :fist_submission_id, :second_submission_id, * 
-        from unnest(:first_code_blocks, :second_code_blocks, :similarity_scores);
+        select  :task_id, 
+                :fist_submission_id, 
+                :second_submission_id,
+                json_populate_recordset(null::code_block, s.first_code_blocks),
+                json_populate_recordset(null::code_block, s.second_code_blocks),
+                s.similarity_scores 
+        from unnest(:first_code_blocks, :second_code_blocks, :similarity_scores) as s(first_code_blocks, second_code_blocks, similarity_scores);
         """;
 
         NpgsqlConnection connection = await _connectionProvider.GetConnectionAsync(cancellationToken);
@@ -188,8 +198,14 @@ public class CheckingResultRepository : ICheckingResultRepository
             .AddParameter("task_id", checkingId.Value)
             .AddParameter("fist_submission_id", firstSubmissionId)
             .AddParameter("second_submission_id", secondSubmissionId)
-            .AddParameter("first_code_blocks", codeBlocks.Select(x => x.First).ToArray())
-            .AddParameter("second_code_blocks", codeBlocks.Select(x => x.Second).ToArray())
+            .AddJsonArrayParameter(
+                "first_code_blocks",
+                codeBlocks.Select(x => x.First),
+                _serializerSettings)
+            .AddJsonArrayParameter(
+                "second_code_blocks",
+                codeBlocks.Select(x => x.Second),
+                _serializerSettings)
             .AddParameter("similarity_scores", codeBlocks.Select(x => x.SimilarityScore).ToArray());
     }
 }

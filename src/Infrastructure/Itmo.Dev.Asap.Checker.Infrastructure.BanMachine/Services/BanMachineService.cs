@@ -135,19 +135,10 @@ internal class BanMachineService : IBanMachineService
 
         foreach (Asap.BanMachine.Models.SimilarCodeBlocks codeBlocks in response.Success.CodeBlocks)
         {
-            var first = new CodeBlock(
-                codeBlocks.First.FilePath,
-                codeBlocks.First.LineFrom,
-                codeBlocks.First.LineTo,
-                codeBlocks.First.Content);
-
-            var second = new CodeBlock(
-                codeBlocks.Second.FilePath,
-                codeBlocks.Second.LineFrom,
-                codeBlocks.Second.LineTo,
-                codeBlocks.Second.Content);
-
-            yield return new SimilarCodeBlocks(first, second, codeBlocks.SimilarityScore);
+            yield return new SimilarCodeBlocks(
+                codeBlocks.First.Select(MapToCodeBlock).ToArray(),
+                codeBlocks.Second.Select(MapToCodeBlock).ToArray(),
+                codeBlocks.SimilarityScore);
         }
     }
 
@@ -160,5 +151,14 @@ internal class BanMachineService : IBanMachineService
             AssignmentId = submissionData.AssignmentId.ToString(),
             FileLink = submissionData.FileLink,
         };
+    }
+
+    private static CodeBlock MapToCodeBlock(Itmo.Dev.Asap.BanMachine.Models.CodeBlock codeBlock)
+    {
+        return new CodeBlock(
+            codeBlock.FilePath,
+            codeBlock.LineFrom,
+            codeBlock.LineTo,
+            codeBlock.Content);
     }
 }

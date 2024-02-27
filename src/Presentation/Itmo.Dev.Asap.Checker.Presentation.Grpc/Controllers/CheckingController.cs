@@ -118,8 +118,8 @@ public class CheckingController : CheckingService.CheckingServiceBase
 
         IEnumerable<SimilarCodeBlocks> codeBlocks = applicationResponse.CodeBlocks.Select(block => new SimilarCodeBlocks
         {
-            First = Map(block.First),
-            Second = Map(block.Second),
+            First = { block.First.Select(Map) },
+            Second = { block.Second.Select(Map) },
             SimilarityScore = block.SimilarityScore,
         });
 
