@@ -94,8 +94,8 @@ public class CheckingResultRepository : ICheckingResultRepository
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         const string sql = """
-        select checking_result_code_block_first::code_block,
-               checking_result_code_block_second::code_block, 
+        select checking_result_code_block_first::code_block[],
+               checking_result_code_block_second::code_block[], 
                checking_result_code_block_similarity_score
         from checking_result_code_blocks
         where 
