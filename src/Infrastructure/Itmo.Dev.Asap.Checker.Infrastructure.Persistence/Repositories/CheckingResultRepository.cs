@@ -41,7 +41,7 @@ public class CheckingResultRepository : ICheckingResultRepository
                  or :should_ignore_second_filter 
                  or  checking_result_first_submission_id != :first_submission_id
                  or checking_result_second_submission_id > :second_submission_id)
-        order by checking_result_first_submission_id, checking_result_second_submission_id, checking_result_similarity_score desc
+        order by checking_result_similarity_score desc, checking_result_first_submission_id, checking_result_second_submission_id
         limit :page_size
         """;
 
