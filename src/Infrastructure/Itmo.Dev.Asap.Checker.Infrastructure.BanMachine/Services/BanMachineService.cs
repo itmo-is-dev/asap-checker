@@ -103,7 +103,7 @@ internal class BanMachineService : IBanMachineService
                 yield return new BanMachinePairAnalysisResult(
                     data.FirstSubmissionId.MapToGuid(),
                     data.SecondSubmissionId.MapToGuid(),
-                    data.SimilarityScore);
+                    SimilarityScore: Math.Round(data.SimilarityScore, 2));
             }
         }
         while (request.PageToken is not null);
@@ -116,7 +116,7 @@ internal class BanMachineService : IBanMachineService
         var request = new GetAnalysisResultCodeBlocksRequest
         {
             AnalysisId = query.AnalysisId.ToString(),
-            FirstSubmissionId = query.FistSubmissionId.ToString(),
+            FirstSubmissionId = query.FirstSubmissionId.ToString(),
             SecondSubmissionId = query.SecondSubmissionId.ToString(),
             MinimumSimilarityScore = query.MinimumSimilarityScore,
             Cursor = query.Cursor,
@@ -133,12 +133,16 @@ internal class BanMachineService : IBanMachineService
             throw new InvalidOperationException(message);
         }
 
+        _logger.LogTrace(
+            "Received code blocks, count = {Count}",
+            response.Success.CodeBlocks.Count);
+
         foreach (Asap.BanMachine.Models.SimilarCodeBlocks codeBlocks in response.Success.CodeBlocks)
         {
             yield return new SimilarCodeBlocks(
                 codeBlocks.First.Select(MapToCodeBlock).ToArray(),
                 codeBlocks.Second.Select(MapToCodeBlock).ToArray(),
-                codeBlocks.SimilarityScore);
+                SimilarityScore: Math.Round(codeBlocks.SimilarityScore, 2));
         }
     }
 
