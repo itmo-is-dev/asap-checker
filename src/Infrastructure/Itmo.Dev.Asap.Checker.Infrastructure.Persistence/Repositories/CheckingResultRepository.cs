@@ -207,5 +207,7 @@ public class CheckingResultRepository : ICheckingResultRepository
                 codeBlocks.Select(x => x.Second),
                 _serializerSettings)
             .AddParameter("similarity_scores", codeBlocks.Select(x => x.SimilarityScore).ToArray());
+
+        await command.ExecuteNonQueryAsync(cancellationToken);
     }
 }
